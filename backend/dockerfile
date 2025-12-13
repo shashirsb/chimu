@@ -1,0 +1,23 @@
+# Use an official Node.js LTS image
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files first (better caching)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --production
+
+# Copy the rest of the project files
+COPY . .
+
+# Expose the port your app runs on (adjust if needed)
+EXPOSE 4000
+
+# Load environment variables automatically if using docker-compose
+# or specify manually when running the container.
+
+# Start the Node server
+CMD ["npm", "start"]

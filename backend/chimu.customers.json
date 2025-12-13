@@ -1,0 +1,1552 @@
+[{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6b9"
+  },
+  "name": "Jamie Dimon",
+  "email": "jamie.dimon@jpmc.com",
+  "designation": "Chariman & CEO",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": true,
+  "type": "businessChampion",
+  "reportingTo": [],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ba"
+  },
+  "name": "Douglas B. Petno",
+  "email": "douglas.b.petno@jpmc.com",
+  "designation": "CEO, CB",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6bb"
+  },
+  "name": "Mary Callahan Erdoes",
+  "email": "mary.erdoes@jpmc.com",
+  "designation": "CEO, AWM",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6bc"
+  },
+  "name": "Daniel Pinto",
+  "email": "daniel.pinto@jpmc.com",
+  "designation": "President & CEO",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6bd"
+  },
+  "name": "Andrew Lang",
+  "email": "andrew.lang@jpmc.com",
+  "designation": "CTO",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "daniel.pinto@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6be"
+  },
+  "name": "Lori A. Beer",
+  "email": "lori.a.beer@jpmc.com",
+  "designation": "Global CIO",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "daniel.pinto@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6bf"
+  },
+  "name": "James Reid",
+  "email": "james.reid@jpmc.com",
+  "designation": "CIO, Employee Experience & Coporate Technology",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "lori.a.beer@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c0"
+  },
+  "name": "Phil Ferraro",
+  "email": "phil.ferraro@jpmc.com",
+  "designation": "Managing Director, Cyber Security",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "lori.a.beer@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c1"
+  },
+  "name": "Patrick Opet",
+  "email": "patrick.opet@jpmc.com",
+  "designation": "",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "lori.a.beer@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c2"
+  },
+  "name": "Scott Baldry",
+  "email": "scott.baldry@jpmc.com",
+  "designation": "FRDC",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "lori.a.beer@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c3"
+  },
+  "name": "Allison Beer",
+  "email": "allison.beer@jpmc.com",
+  "designation": "CEO, Card & Connected Commerce - Chase",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "daniel.pinto@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c4"
+  },
+  "name": "Takis Georgakopoulos",
+  "email": "takis.georgakopoulos@jpmc.com",
+  "designation": "Head of Wholesale Payments",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "daniel.pinto@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c5"
+  },
+  "name": "Jennifer Piepszak",
+  "email": "jennifer.piepszak@jpmc.com",
+  "designation": "CO-CEO, CCB",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c6"
+  },
+  "name": "Marianne Lake",
+  "email": "marianne.lake@jpmc.com",
+  "designation": "CO-CEO, CCB",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "businessChampion",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c7"
+  },
+  "name": "Jeremy Barnum",
+  "email": "jeremy.barnum@jpmc.com",
+  "designation": "",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "jamie.dimon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c8"
+  },
+  "name": "Lori Beer",
+  "email": "lori.beer@jpmc.com",
+  "designation": "",
+  "location": "",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "daniel.pinto@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6c9"
+  },
+  "name": "AJ Lang",
+  "email": "aj.lang@jpmc.com",
+  "designation": "",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "lori.beer@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ca"
+  },
+  "name": "Darrin Alves",
+  "email": "darrin.alves@jpmc.com",
+  "designation": "CTO",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "aj.lang@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6cb"
+  },
+  "name": "Jonathan Elvers",
+  "email": "jonathan.elvers@jpmc.com",
+  "designation": "MD GLOBAL",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "darrin.alves@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6cc"
+  },
+  "name": "Rossana Nation",
+  "email": "rossana.nation@jpmc.com",
+  "designation": "Executive Administrative Asst",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "jonathan.elvers@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6cd"
+  },
+  "name": "Simon Ogden",
+  "email": "simon.ogden@jpmc.com",
+  "designation": "Executive Director - Platform Services, GTI",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "jonathan.elvers@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ce"
+  },
+  "name": "Abhishek Das",
+  "email": "abhishek.das@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6cf"
+  },
+  "name": "Girish S Kulkarni",
+  "email": "girish.s.kulkarni@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d0"
+  },
+  "name": "Ibrahim I Dogan",
+  "email": "ibrahim.i.dogan@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d1"
+  },
+  "name": "Krishna Gundachar",
+  "email": "krishna.gundachar@jpmc.com",
+  "designation": "VP/ Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d2"
+  },
+  "name": "Ravikishore Ankam",
+  "email": "ravikishore.ankam@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d3"
+  },
+  "name": "Sanjeev Jain",
+  "email": "sanjeev.jain@jpmc.com",
+  "designation": "VP / Lead Infrastructure Engineer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d4"
+  },
+  "name": "Srinivas R Dargula",
+  "email": "srinivas.r.dargula@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "abhishek.das@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d5"
+  },
+  "name": "Anand Venkatakrishnan",
+  "email": "anand.venkatakrishnan@jpmc.com",
+  "designation": "VP / Product Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d6"
+  },
+  "name": "Anthony Wands",
+  "email": "anthony.wands@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "anand.venkatakrishnan@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d7"
+  },
+  "name": "Hozaifa E Abdalla",
+  "email": "hozaifa.e.abdalla@jpmc.com",
+  "designation": "ASSOC / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "anand.venkatakrishnan@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d8"
+  },
+  "name": "Vijay Bhatia",
+  "email": "vijay.bhatia@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "anand.venkatakrishnan@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6d9"
+  },
+  "name": "Paddy R Bussey",
+  "email": "paddy.r.bussey@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6da"
+  },
+  "name": "Sean A Saunders",
+  "email": "sean.a.saunders@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "paddy.r.bussey@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6db"
+  },
+  "name": "Anil Shukla",
+  "email": "anil.shukla@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6dc"
+  },
+  "name": "Basavaraj Pindikoor",
+  "email": "basavaraj.pindikoor@jpmc.com",
+  "designation": "Vice President/ DB Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6dd"
+  },
+  "name": "Aniket Gangakhedkar",
+  "email": "aniket.gangakhedkar@jpmc.com",
+  "designation": "ASSOC / Infrastructure Engineer III",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6de"
+  },
+  "name": "Binny R Chembakassery",
+  "email": "binny.r.chembakassery@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6df"
+  },
+  "name": "Jyothi V",
+  "email": "jyothi.v@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e0"
+  },
+  "name": "Manjunath M Eklarkar",
+  "email": "manjunath.m.eklarkar@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e1"
+  },
+  "name": "Nandakumar Murugasamy",
+  "email": "nandakumar.murugasamy@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e2"
+  },
+  "name": "Prajith Madassery Sasikumar",
+  "email": "prajith.sasikumar@jpmc.com",
+  "designation": "ASSOC / Intrastructure engineer Ill (+91-80) 66762008 ext.4144243 O",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e3"
+  },
+  "name": "Raghavendra Honnappa",
+  "email": "raghavendra.honnappa@jpmc.com",
+  "designation": "ASSOC / Infrastructure Engineer III O",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e4"
+  },
+  "name": "Ramesh M r",
+  "email": "ramesh.m.r@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e5"
+  },
+  "name": "Samarjit S Sanjenbam",
+  "email": "samarjit.s.sanjenbam@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e6"
+  },
+  "name": "Sathya Kumar A R",
+  "email": "sathya.r@jpmc.com",
+  "designation": "ASSOC / Software Engineer III •",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e7"
+  },
+  "name": "Subhasmita Panda",
+  "email": "subhasmita.panda@jpmc.com",
+  "designation": "ASSOC / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e8"
+  },
+  "name": "Vijay Kumar",
+  "email": "vijay.kumar@jpmc.com",
+  "designation": "ASSOC / VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6e9"
+  },
+  "name": "Zalak Joshi",
+  "email": "zalak.joshi@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "basavaraj.pindikoor@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ea"
+  },
+  "name": "Geraldine Koh",
+  "email": "geraldine.koh@jpmc.com",
+  "designation": "Vice President/ DB Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6eb"
+  },
+  "name": "Geraldine Kon",
+  "email": "geraldine.kon@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ec"
+  },
+  "name": "JayaprakashNarayanan Krishnamurthy",
+  "email": "jayaprakashnarayanan.krishnamurthy@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "geraldine.kon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ed"
+  },
+  "name": "Rajasekhar Raju Yeligindla",
+  "email": "rajasekhar.raju.yeligindla@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "geraldine.kon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ee"
+  },
+  "name": "Shanmugam Samynathan",
+  "email": "shanmugam.samynathan@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "geraldine.kon@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ef"
+  },
+  "name": "Pankaja Kadakuntia",
+  "email": "pankaja.kadakuntia@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f0"
+  },
+  "name": "Pankaja Kadakuntla",
+  "email": "pankaja.kadakuntla@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f1"
+  },
+  "name": "Ara Soundararajan",
+  "email": "ara.soundararajan@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "pankaja.kadakuntla@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f2"
+  },
+  "name": "Viridiana limenez Diaz",
+  "email": "viridiana.diaz@jpmc.com",
+  "designation": "ASSOC / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "pankaja.kadakuntla@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f3"
+  },
+  "name": "PATER KATTES",
+  "email": "pater.kattes@jpmc.com",
+  "designation": "ASSOC / Infrastructure Engineer II",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f4"
+  },
+  "name": "Paul R Kaura",
+  "email": "paul.r.kaura@jpmc.com",
+  "designation": "ASSOC / Infrastructure Engineer III",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f5"
+  },
+  "name": "Shikha Roy",
+  "email": "shikha.roy@jpmc.com",
+  "designation": "VP / Sr Manager of Infrastructure",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f6"
+  },
+  "name": "Asha Anil",
+  "email": "asha.anil@jpmc.com",
+  "designation": "VP / Lead Infrastructure Engineer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "shikha.roy@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f7"
+  },
+  "name": "Cecil Chan",
+  "email": "cecil.chan@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "shikha.roy@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f8"
+  },
+  "name": "David Lopez",
+  "email": "david.lopez@jpmc.com",
+  "designation": "ASSOC / Infrastructure Engineer III",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "shikha.roy@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6f9"
+  },
+  "name": "Ken Hu",
+  "email": "ken.hu@jpmc.com",
+  "designation": "VP / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "shikha.roy@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6fa"
+  },
+  "name": "Prabhat K Mohapatra",
+  "email": "prabhat.k.mohapatra@jpmc.com",
+  "designation": "ASSOC / Database Management",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "shikha.roy@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6fb"
+  },
+  "name": "Steve Williams",
+  "email": "steve.williams@jpmc.com",
+  "designation": "VP / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "simon.ogden@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6fc"
+  },
+  "name": "Alked Ejupi",
+  "email": "alked.ejupi@jpmc.com",
+  "designation": "ASSOC / Software Engineer O",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "steve.williams@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6fd"
+  },
+  "name": "Dharmender Dharmender",
+  "email": "dharmender.dharmender@jpmc.com",
+  "designation": "VP / Lead Software Engineer O",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "steve.williams@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6fe"
+  },
+  "name": "Matt Christopher",
+  "email": "matt.christopher@jpmc.com",
+  "designation": "ASSOC / Software Engineer III",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "steve.williams@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab6ff"
+  },
+  "name": "Pushpa Rani John Samuel",
+  "email": "pushpa.rani.john.samuel@jpmc.com",
+  "designation": "ASSOC / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "steve.williams@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab700"
+  },
+  "name": "Sharon Mathew",
+  "email": "sharon.mathew@jpmc.com",
+  "designation": "ASSOC / Infrastructure Developer",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "steve.williams@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab701"
+  },
+  "name": "Margaret Cook",
+  "email": "margaret.cook@jpmc.com",
+  "designation": "ED",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "Unknown",
+  "reportingTo": [
+    "rob.@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+},
+{
+  "_id": {
+    "$oid": "692f2ae7f5045bcc017ab702"
+  },
+  "name": "Brad Schoening",
+  "email": "brad.schoening@jpmc.com",
+  "designation": "ED, DB Consulting Support",
+  "location": "Global",
+  "sentiment": "Unknown",
+  "awareness": "Unknown",
+  "decisionMaker": false,
+  "type": "techChampion",
+  "reportingTo": [
+    "margaret.cook@jpmc.com"
+  ],
+  "reportees": [],
+  "logHistory": [],
+  "accountId": {
+    "$oid": "691601e82c9db1f168e850d4"
+  }
+}]

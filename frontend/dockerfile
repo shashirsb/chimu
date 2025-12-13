@@ -1,0 +1,30 @@
+# ----- Build Stage -----
+FROM node:18-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --production
+
+COPY . .
+
+# Accept build argument for VITE_BACKEND_URL
+ARG BACKEND_URL
+
+# Set environment variable for Vite build
+ENV REACT_APP_API_URL=${BACKEND_URL}
+
+# Echo the BACKEND_URL to verify it during build
+RUN echo "BACKEND_URL is set to: ${REACT_APP_API_URL}"
+
+
+RUN npm run build
+
+# ----- NGINX Stage -----
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
