@@ -17,7 +17,7 @@ ENV REACT_APP_API_URL=${BACKEND_URL}
 # Echo the BACKEND_URL to verify it during build
 RUN echo "BACKEND_URL is set to: ${REACT_APP_API_URL}"
 
-
+# Build the project
 RUN npm run build
 
 # ----- NGINX Stage -----
