@@ -1,18 +1,15 @@
-// src/pages/NewAccount.jsx - MINIMALIST UI REWRITE
-
+// src/pages/NewAccount.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
-import { Search, Trash2, MapPin } from "lucide-react";
-import { Plus } from "lucide-react"; 
+import { Search, Trash2, Plus, X } from "lucide-react"; // Added X for the popup
 
-// Shared Tailwind classes for minimalist design
+// Shared Tailwind classes for minimalist design (unchanged)
 const inputStyle = "w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition";
 const labelStyle = "text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase";
 const locationTagStyle = "inline-flex items-center gap-1 px-3 py-1 rounded-md bg-teal-50 text-teal-700 text-xs font-medium"; 
 
-/* ------------------ COUNTRY DATA ------------------ */
-// Data source for the Country Dropdown
+/* ------------------ COUNTRY DATA (unchanged) ------------------ */
 const MAJOR_COUNTRIES = [
   { name: 'United States', code: 'US', flag: '🇺🇸' },
   { name: 'China', code: 'CN', flag: '🇨🇳' },
@@ -42,8 +39,30 @@ const MAJOR_COUNTRIES = [
 /* ---------------------------------------------------- */
 
 
-/* ------------------ MultiTagInput ------------------ */
-function MultiTagInput({ label, value = [], onChange, placeholder }) {
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Operation Failed</h3>
+                        <p className="mt-1 text-sm text-gray-600">{message}</p>
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition" aria-label="Close error message">
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+/* ------------------ MultiTagInput (unchanged logic, added disabled prop) ------------------ */
+function MultiTagInput({ label, value = [], onChange, placeholder, disabled }) {
   const [query, setQuery] = useState("");
 
   const addTag = () => {
@@ -66,7 +85,7 @@ function MultiTagInput({ label, value = [], onChange, placeholder }) {
     <div className="flex flex-col">
       {label && <label className={labelStyle}>{label}</label>} 
 
-      <div className="w-full border-b border-gray-200 focus-within:border-teal-500 transition pb-1">
+      <div className={`w-full border-b border-gray-200 transition pb-1 ${!disabled ? 'focus-within:border-teal-500' : ''}`}>
         
         <div className="flex flex-wrap gap-2 mb-2 pt-1">
           {value.map((tag) => (
@@ -77,8 +96,9 @@ function MultiTagInput({ label, value = [], onChange, placeholder }) {
               {tag}
               <button 
                 onClick={() => removeTag(tag)} 
-                className="hover:text-red-500 p-0.5"
+                className={`p-0.5 ${!disabled ? 'hover:text-red-500' : 'cursor-not-allowed'}`}
                 title={`Remove ${tag}`}
+                disabled={disabled}
               >
                 <Trash2 size={12} />
               </button>
@@ -87,19 +107,20 @@ function MultiTagInput({ label, value = [], onChange, placeholder }) {
         </div>
 
         <input
-          className="w-full px-0 py-1 bg-transparent outline-none text-sm"
+          className="w-full px-0 py-1 bg-transparent outline-none text-sm disabled:text-gray-500 disabled:cursor-not-allowed"
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
+          disabled={disabled}
         />
       </div>
     </div>
   );
 }
 
-/* ------------------ MultiUserSelect ------------------ */
-function MultiUserSelect({ label, value = [], onChange, users = [] }) {
+/* ------------------ MultiUserSelect (unchanged logic, added disabled prop) ------------------ */
+function MultiUserSelect({ label, value = [], onChange, users = [], disabled }) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -124,7 +145,7 @@ function MultiUserSelect({ label, value = [], onChange, users = [] }) {
     <div className="flex flex-col">
       {label && <label className={labelStyle}>{label}</label>}
 
-      <div className="w-full border-b border-gray-200 focus-within:border-teal-500 transition pb-1">
+      <div className={`w-full border-b border-gray-200 transition pb-1 ${!disabled ? 'focus-within:border-teal-500' : ''}`}>
         <div className="flex flex-wrap gap-2 mb-2 pt-1">
           {value.map((id) => {
             const u = users.find((x) => x._id === id);
@@ -137,8 +158,9 @@ function MultiUserSelect({ label, value = [], onChange, users = [] }) {
                 {u.displayName || u.username}
                 <button 
                   onClick={() => removeUser(id)} 
-                  className="hover:text-red-500 p-0.5"
+                  className={`p-0.5 ${!disabled ? 'hover:text-red-500' : 'cursor-not-allowed'}`}
                   title={`Remove ${u.displayName || u.username}`}
+                  disabled={disabled}
                 >
                   <Trash2 size={12} />
                 </button>
@@ -151,13 +173,15 @@ function MultiUserSelect({ label, value = [], onChange, users = [] }) {
           <Search size={16} className="absolute left-0 top-2 text-gray-400" />
           
           <input
-            className="w-full pl-6 pr-0 py-1 bg-transparent outline-none text-sm"
+            className="w-full pl-6 pr-0 py-1 bg-transparent outline-none text-sm disabled:text-gray-500 disabled:cursor-not-allowed"
             placeholder="Search by name or email"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            disabled={disabled}
           />
 
-          {query && filtered.length > 0 && (
+          {/* Conditional rendering for dropdown needs to consider disabled state */}
+          {query && filtered.length > 0 && !disabled && (
             <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-md max-h-56 overflow-auto mt-1">
               {filtered.map((u) => (
                 <button
@@ -179,34 +203,35 @@ function MultiUserSelect({ label, value = [], onChange, users = [] }) {
 }
 
 
-/* ------------------ MultiLocationInput (UPDATED) ------------------ */
-function MultiLocationInput({ label, value = [], onChange }) {
+/* ------------------ MultiLocationInput (ENHANCED ERROR) ------------------ */
+function MultiLocationInput({ label, value = [], onChange, disabled }) {
   const [newCity, setNewCity] = useState("");
   const [newCountry, setNewCountry] = useState("");
+  const [locationError, setLocationError] = useState(""); // Internal error state
 
   const addLocation = () => {
     const city = newCity.trim();
     const country = newCountry.trim();
+    setLocationError("");
 
     if (!city || !country) {
-      alert("City and Country are required.");
+      setLocationError("City and Country are required.");
       return;
     }
 
     const isDuplicate = value.some(loc => loc.city === city && loc.country === country);
     if (isDuplicate) {
-        alert("This location already exists.");
+        setLocationError("This location already exists.");
         return;
     }
 
     onChange([...value, { city, country }]);
     setNewCity("");
-    setNewCountry(""); // Reset country dropdown to default/empty
+    setNewCountry("");
   };
 
   const removeLocation = (index) => onChange(value.filter((_, i) => i !== index));
   
-  // Helper to get the flag for display
   const getFlag = (countryName) => {
     const country = MAJOR_COUNTRIES.find(c => c.name === countryName);
     return country ? country.flag : '🌍';
@@ -228,14 +253,20 @@ function MultiLocationInput({ label, value = [], onChange }) {
             {loc.city}, {loc.country}
             <button 
               onClick={() => removeLocation(index)} 
-              className="hover:text-red-500 p-0.5 ml-1"
+              className={`p-0.5 ml-1 ${!disabled ? 'hover:text-red-500' : 'cursor-not-allowed'}`}
               title={`Remove ${loc.city}`}
+              disabled={disabled}
             >
               <Trash2 size={12} />
             </button>
           </span>
         ))}
       </div>
+      
+      {/* Internal Location Error */}
+      {locationError && (
+          <p className="text-red-600 text-xs mb-2">{locationError}</p>
+      )}
 
       {/* Inputs for New Location */}
       <div className="flex gap-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
@@ -244,19 +275,21 @@ function MultiLocationInput({ label, value = [], onChange }) {
           <label className="text-xs text-gray-500 font-medium">City (Required)</label>
           <input
             name="city"
-            className="w-full p-1 border-b border-gray-200 bg-transparent focus:border-teal-500 focus:ring-0 outline-none"
+            className="w-full p-1 border-b border-gray-200 bg-transparent focus:border-teal-500 focus:ring-0 outline-none disabled:bg-gray-100"
             value={newCity}
             onChange={(e) => setNewCity(e.target.value)}
             placeholder="e.g. Frankfurt"
+            disabled={disabled}
           />
         </div>
         
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Country (Required)</label>
           <select
-            className="w-full p-1 border-b border-gray-200 bg-transparent focus:border-teal-500 focus:ring-0 outline-none cursor-pointer"
+            className="w-full p-1 border-b border-gray-200 bg-transparent focus:border-teal-500 focus:ring-0 outline-none cursor-pointer disabled:bg-gray-100"
             value={newCountry}
             onChange={(e) => setNewCountry(e.target.value)}
+            disabled={disabled}
           >
             <option value="" disabled>Select Country</option>
             {MAJOR_COUNTRIES.map((c) => (
@@ -270,8 +303,8 @@ function MultiLocationInput({ label, value = [], onChange }) {
         <button
           type="button"
           onClick={addLocation}
-          className="flex-shrink-0 self-end px-3 py-1.5 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition text-sm"
-          disabled={!newCity.trim() || !newCountry} 
+          className="flex-shrink-0 self-end px-3 py-1.5 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition text-sm disabled:bg-teal-300 disabled:cursor-not-allowed"
+          disabled={!newCity.trim() || !newCountry || disabled} 
         >
           Add
         </button>
@@ -286,13 +319,15 @@ export default function NewAccount() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false); // NEW: Creating state
+  const [error, setError] = useState(null); // NEW: Error state for popup
   const [users, setUsers] = useState([]);
 
   const [form, setForm] = useState({
     name: "",
     region: [],
     businessUnit: [],
-    locations: [],          // ✅ NEW FIELD
+    locations: [],
     active: true,
     description: "",
     mappedUsers: []
@@ -303,50 +338,74 @@ export default function NewAccount() {
   }, []);
 
   const loadUsers = async () => {
+    setError(null);
     try {
-      // Assuming /users API endpoint returns an array of user objects
       const res = await api.get("/users");
       setUsers(res.data || []);
     } catch (err) {
-      console.error("Failed to load users", err);
+      // --- ENHANCED: Error handling for user list load ---
+      console.error("Failed to load users:", err);
+      setError("Failed to load the user list for mapping. You can create the account, but mapping users may fail.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async () => {
+    setError(null);
+
     if (!form.name.trim()) {
-        alert("Account Name is required.");
+        setError("Account Name is required and cannot be empty.");
         return;
     }
+    
+    setIsCreating(true);
+
+    let createdAccount = null;
       
     try {
-      // 1. Create account with ALL necessary fields
+      // 1. Create account with core fields
       const res = await api.post("/accounts", {
         name: form.name,
         region: form.region,
         businessUnit: form.businessUnit,
-        locations: form.locations, // SENDING LOCATIONS DATA
+        locations: form.locations,
         active: form.active,
         description: form.description
       });
 
-      const account = res.data.account; 
+      createdAccount = res.data.account; 
 
       // 2. Update mapped users separately (if any)
       if (Array.isArray(form.mappedUsers) && form.mappedUsers.length > 0) {
-        // Using the dedicated PUT endpoint: /accounts/:id/users
-        // Request body MUST match the controller's expectation: { mappedUsers: [...] }
-        await api.put(`/accounts/${account._id}/users`, {
+        await api.put(`/accounts/${createdAccount._id}/users`, {
           mappedUsers: form.mappedUsers 
         });
       }
 
       navigate("/accounts");
     } catch (err) {
-      console.error(err);
-      // More specific error alerting
-      alert(`Error creating account: ${err.response?.data?.message || err.message}`);
+      // --- ENHANCED: Error handling for creation steps ---
+      console.error("Error creating account:", err);
+      
+      let userMessage = "Failed to create the account due to a server or network issue.";
+      let status = err.response?.status;
+      
+      if (status) {
+          if (status === 400 && err.response.data?.message) {
+              userMessage = `Validation Error: ${err.response.data.message}. Ensure the name is unique.`;
+          } else if (status === 403) {
+              userMessage = "You do not have permission to create accounts.";
+          } else if (createdAccount) {
+              // This case happens if the account creation (step 1) succeeded, but user mapping (step 2) failed.
+              userMessage = `Account "${createdAccount.name}" was created successfully, but user mapping failed: Server responded with ${status}. Please edit the account later to assign users.`;
+          } else {
+              userMessage = `Creation failed: Server responded with ${status}.`;
+          }
+      }
+      setError(userMessage);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -354,13 +413,21 @@ export default function NewAccount() {
 
   return (
     <div className="p-8 min-h-screen bg-gray-50">
+        
+        {/* RENDER THE POPUP */}
+        <ErrorPopup 
+            message={error} 
+            onClose={() => setError(null)} 
+        />
+
       <div className="max-w-3xl mx-auto">
         
         {/* Header and Back Button */}
         <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate("/accounts")}
-              className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition p-2"
+              className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition p-2 disabled:opacity-50"
+              disabled={isCreating}
             >
               ← Back to Accounts
             </button>
@@ -378,6 +445,7 @@ export default function NewAccount() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="e.g. Acme Corp."
+              disabled={isCreating}
             />
           </div>
 
@@ -387,6 +455,7 @@ export default function NewAccount() {
             placeholder="e.g. APAC, EMEA, NA"
             value={form.region}
             onChange={(arr) => setForm({ ...form, region: arr })}
+            disabled={isCreating}
           />
 
           {/* Business Units */}
@@ -395,6 +464,7 @@ export default function NewAccount() {
             placeholder="e.g. Finance, Marketing, IT"
             value={form.businessUnit}
             onChange={(arr) => setForm({ ...form, businessUnit: arr })}
+            disabled={isCreating}
           />
           
           {/* LOCATIONS */}
@@ -402,6 +472,7 @@ export default function NewAccount() {
             label="Office Locations"
             value={form.locations}
             onChange={(arr) => setForm({ ...form, locations: arr })}
+            disabled={isCreating}
           />
 
           {/* Active Toggle */}
@@ -411,6 +482,7 @@ export default function NewAccount() {
               checked={form.active}
               onChange={(e) => setForm({ ...form, active: e.target.checked })}
               className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 cursor-pointer" 
+              disabled={isCreating}
             />
             <span className="text-gray-700 ml-3">Account is **Active**</span>
           </div>
@@ -422,6 +494,7 @@ export default function NewAccount() {
               users={users}
               value={form.mappedUsers}
               onChange={(arr) => setForm({ ...form, mappedUsers: arr })}
+              disabled={isCreating || users.length === 0}
             />
             <div className="text-xs text-gray-400 mt-3">
               Add users to this account. Saving will update user records.
@@ -437,6 +510,7 @@ export default function NewAccount() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Brief description of the account or internal notes."
+              disabled={isCreating}
             />
           </div>
 
@@ -444,16 +518,18 @@ export default function NewAccount() {
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-100 mt-8">
             <button
               onClick={() => navigate("/accounts")}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition disabled:opacity-50"
+              disabled={isCreating}
             >
               Cancel
             </button>
 
             <button
               onClick={handleCreate}
-              className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition flex items-center gap-2 font-medium"
+              className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition flex items-center gap-2 font-medium disabled:bg-teal-400 disabled:cursor-not-allowed"
+              disabled={isCreating}
             >
-                <Plus size={16} /> Create Account
+                <Plus size={16} /> {isCreating ? "Creating..." : "Create Account"}
             </button>
           </div>
         </div>

@@ -1,16 +1,42 @@
-// src/pages/Accounts.jsx - MINIMALIST UI REWRITE (COMPACT CARDS)
+// src/pages/Accounts.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
-import { Pencil, Plus, Trash2, Search } from "lucide-react";
+import { Pencil, Plus, Trash2, Search, X } from "lucide-react"; // Added X for the popup
 import { useNavigate } from "react-router-dom";
+
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Operation Failed</h3>
+                        <p className="mt-1 text-sm text-gray-600">{message}</p>
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition" aria-label="Close error message">
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+// ------------------------------------
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);
   const [users, setUsers] = useState([]);
 
+  // --- 2. NEW: Loading and Error states ---
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("All");
-  const [businessUnitFilter, setBusinessUnitFilter] = useState("All"); // NEW
+  const [businessUnitFilter, setBusinessUnitFilter] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
@@ -22,25 +48,40 @@ export default function Accounts() {
   }, []);
 
   const loadAll = async () => {
+    setError(null);
     try {
       const [accRes, usersRes] = await Promise.all([
         api.get("/accounts"),
         api.get("/users")
       ]);
-      setAccounts(accRes.data);
-      setUsers(usersRes.data);
+      setAccounts(accRes.data || []);
+      setUsers(usersRes.data || []);
     } catch (err) {
-      console.error(err);
+      // --- 3. ENHANCED: Error handling for initial load ---
+      console.error("Error loading accounts or users:", err);
+      
+      let userMessage = "Failed to load the Account Directory. Check your network or permissions.";
+
+      if (err.response) {
+          if (err.response.status === 403) {
+              userMessage = "You do not have permission to view this directory.";
+          } else {
+              userMessage = `Data load failed: Server responded with ${err.response.status}.`;
+          }
+      }
+      setError(userMessage);
+    } finally {
+        setLoading(false);
     }
   };
 
+  // ... (availableRegions, availableBusinessUnits, filteredAccounts useMemo logic remains unchanged)
   const availableRegions = useMemo(() => {
     const s = new Set();
     accounts.forEach((a) => (a.region || []).forEach((r) => s.add(r)));
     return ["All", ...Array.from(s).sort()];
   }, [accounts]);
 
-  // NEW: Business Unit options
   const availableBusinessUnits = useMemo(() => {
     const s = new Set();
     accounts.forEach((a) =>
@@ -65,7 +106,6 @@ export default function Accounts() {
       )
         return false;
 
-      // NEW: Business Unit filter
       if (
         businessUnitFilter !== "All" &&
         !a.businessUnit
@@ -103,29 +143,56 @@ export default function Accounts() {
   };
 
   const handleDelete = async (acc) => {
-    if (!window.confirm(`Delete account "${acc.name}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete account "${acc.name}"? This cannot be undone.`)) return;
+    
+    setError(null);
     try {
       await api.delete(`/accounts/${acc._id}`);
       setAccounts((prev) => prev.filter((p) => p._id !== acc._id));
     } catch (err) {
-      console.error(err);
+      // --- 4. ENHANCED: Error handling for delete operation ---
+      console.error("Account delete failed:", err);
+      
+      let userMessage = `Failed to delete account "${acc.name}".`;
+
+      if (err.response) {
+          if (err.response.status === 404) {
+              userMessage = `The account "${acc.name}" was not found (already deleted?).`;
+          } else if (err.response.status === 403) {
+              userMessage = "You do not have permission to delete accounts.";
+          } else {
+              userMessage = `Delete failed: Server responded with ${err.response.status}.`;
+          }
+      }
+      setError(userMessage);
     }
   };
 
-  // Shared Tailwind classes for minimalist inputs/labels
+  // Shared Tailwind classes for minimalist inputs/labels (unchanged)
   const inputStyle = "p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-white transition w-full md:w-auto";
   const labelStyle = "block text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase";
 
 
+  if (loading) {
+    return (
+      <div className="p-8 min-h-screen bg-gray-50 flex items-center justify-center">
+        <h3 className="text-xl text-gray-600">Loading Account Directory...</h3>
+      </div>
+    );
+  }
+
   return (
-    // Added off-white background and increased padding
     <div className="p-8 min-h-screen bg-gray-50">
       
-      {/* Header */}
+      {/* RENDER THE POPUP */}
+      <ErrorPopup 
+        message={error} 
+        onClose={() => setError(null)} 
+      />
+
+      {/* Header (unchanged) */}
       <div className="flex flex-col md:flex-row justify-between mb-8">
           <h2 className="text-3xl font-light text-gray-800 tracking-wide">Account Management</h2>
-
-        {/* Minimalist Primary Button: Outline/Accent Style */}
         <button
           onClick={openNewPage}
           className="border border-teal-500 text-teal-600 px-5 py-2 rounded-lg hover:bg-teal-50 transition flex items-center gap-2 font-medium mt-4 md:mt-0"
@@ -134,7 +201,7 @@ export default function Accounts() {
         </button>
       </div>
 
-      {/* Filters Container - Clean and subtle shadow */}
+      {/* Filters Container (unchanged) */}
       <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-end gap-6">
 
@@ -148,12 +215,11 @@ export default function Accounts() {
                 setSearch(e.target.value);
                 setCurrentPage(1);
               }}
-              // Minimalist input: only bottom border on focus
               className="w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none transition"
             />
           </div>
 
-          {/* Region */}
+          {/* Region, Business Unit, Status filters (unchanged) */}
           <div>
             <label className={labelStyle}>Region</label>
             <select
@@ -167,7 +233,6 @@ export default function Accounts() {
             </select>
           </div>
 
-          {/* NEW: Business Unit */}
           <div>
             <label className={labelStyle}>Business Unit</label>
             <select
@@ -181,7 +246,6 @@ export default function Accounts() {
             </select>
           </div>
 
-          {/* Status */}
           <div>
             <label className={labelStyle}>Status</label>
             <select
@@ -197,19 +261,24 @@ export default function Accounts() {
 
         </div>
       </div>
+      
+      {/* Conditional Content Rendering */}
+      {filteredAccounts.length === 0 && !loading && (
+        <div className="text-center p-10 bg-white rounded-xl border border-dashed text-gray-500">
+          No accounts found matching the current search or filters.
+        </div>
+      )}
 
-      {/* Cards */}
+      {/* Cards (unchanged rendering logic) */}
       <div className="grid grid-cols-1 gap-4">
         {pageItems.map((a) => (
           <div
             key={a._id}
-            // REDUCED PADDING: p-5 -> p-4
             className="bg-white p-4 rounded-xl border border-gray-100 hover:border-teal-100 hover:shadow-md transition duration-300"
           >
-            {/* REDUCED GAP: gap-8 -> gap-6 */}
             <div className="grid grid-cols-[auto_1fr_1fr_auto_auto] items-center gap-6 w-full">
 
-              {/* Avatar (REDUCED SIZE: w-10/h-10 -> w-9/h-9) */}
+              {/* Avatar */}
               <div className="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-semibold text-sm shrink-0">
                 {a.name ? a.name.charAt(0) : "?"}
               </div>
@@ -236,7 +305,7 @@ export default function Accounts() {
                   )}
                 </div>
 
-                {/* NEW: Business Unit Badges (REDUCED MARGIN: mt-2 -> mt-1) */}
+                {/* Business Unit Badges */}
                 <div className="flex flex-wrap gap-2 text-xs mt-1">
                   {a.businessUnit?.length > 0 ? (
                     a.businessUnit.map((b) => (
@@ -295,7 +364,7 @@ export default function Accounts() {
         ))}
       </div>
 
-      {/* Pagination - Clean, text-only buttons */}
+      {/* Pagination (unchanged) */}
       <div className="mt-8 flex justify-center items-center gap-4">
         <button
           disabled={currentPage === 1}

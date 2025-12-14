@@ -1,22 +1,46 @@
-// src/pages/NewWigModal.jsx - MINIMALIST UI REWRITE
-import React, { Suspense } from "react";
+// src/pages/NewWigModal.jsx - REVISED WITH INTERNAL VALIDATION AND POPUP STRUCTURE
+import React, { Suspense, useState } from "react";
 import { ClipboardList, Plus, X } from "lucide-react";
 import Lead from "../components/Lead";
 
-// Shared Tailwind classes for minimalist design
-const inputStyle = "w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition";
+// --- REUSED ERROR POPUP (Assuming the container component provides this or similar) ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Validation Required</h3>
+                        <p className="mt-1 text-sm text-gray-600">{message}</p>
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition" aria-label="Close error message">
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+// ------------------------------------
+
+// Shared Tailwind classes for minimalist design (unchanged)
+const inputStyle = "w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition disabled:bg-gray-50/50";
 const labelStyle = "text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase block";
 
 
 export default function NewWigModal({
   newWig,
   setNewWig,
-  accounts,
-  accountUsers,
-  accountSpokes, // <-- 🚨 ADDED: MUST BE DESTRUCTURED HERE
+  accounts = [], // Defaulting to [] for safety
+  accountUsers = [], 
+  accountSpokes = [], 
   onSave,
   onCancel,
+  isSaving = false, // <--- 🚨 NEW PROP FOR SAVING STATE
 }) {
+  const [internalError, setInternalError] = useState(null); // Internal validation errors
+
   const handleTypeChange = (e) => {
     const selectedType = e.target.value;
     setNewWig({ ...newWig, type: selectedType, leadMeasures: [] });
@@ -60,8 +84,40 @@ export default function NewWigModal({
     });
   };
 
+  // --- 🚨 NEW: Internal Validation Handler ---
+  const handleSaveClick = () => {
+    setInternalError(null);
+
+    // 1. Check basic requirements
+    if (!newWig.type) {
+      setInternalError("Please select a valid Work Item Type.");
+      return;
+    }
+    if (!newWig.accountId) {
+      setInternalError("Please select the target Account.");
+      return;
+    }
+    if (!newWig.title || !newWig.title.trim()) {
+      setInternalError("A Title is required for the work item.");
+      return;
+    }
+    
+    // 2. Check if measures are configured, if applicable
+    if (sections.length > 0 && (!newWig.leadMeasures || newWig.leadMeasures.length === 0)) {
+        setInternalError(`The selected Item Type (${newWig.type}) requires at least one Lead Measure to be configured.`);
+        return;
+    }
+
+    // If validation passes, call the external onSave function
+    onSave({ ...newWig, type: newWig.type || "wig" });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      
+      {/* 🚨 RENDER INTERNAL VALIDATION POPUP */}
+      <ErrorPopup message={internalError} onClose={() => setInternalError(null)} />
+
       <div className="w-full max-w-7xl h-[90vh] rounded-xl bg-white shadow-2xl overflow-hidden flex border border-gray-100">
 
         {/* LEFT PANEL — Minimal Details & Actions */}
@@ -84,12 +140,12 @@ export default function NewWigModal({
                 value={newWig.type || ""}
                 onChange={handleTypeChange}
                 className={inputStyle}
+                disabled={isSaving}
               >
                 <option value="">Select Type</option>
                 <option value="wig">WIG</option>
                 <option value="champion">Champion</option>
                 <option value="task">Task</option>
-                {/* <option value="opportunity">Opportunity</option> */}
               </select>
             </div>
 
@@ -101,6 +157,7 @@ export default function NewWigModal({
                 value={newWig.accountId || ""}
                 onChange={(e) => setNewWig({ ...newWig, accountId: e.target.value })}
                 className={inputStyle}
+                disabled={isSaving}
               >
                 <option value="">Select Account</option>
                 {accounts.map((acc) => (
@@ -118,6 +175,7 @@ export default function NewWigModal({
                 value={newWig.title}
                 onChange={(e) => setNewWig({ ...newWig, title: e.target.value })}
                 className={inputStyle}
+                disabled={isSaving}
               />
             </div>
 
@@ -129,6 +187,7 @@ export default function NewWigModal({
                 value={newWig.statement}
                 onChange={(e) => setNewWig({ ...newWig, statement: e.target.value })}
                 className={`${inputStyle} h-28 resize-y`}
+                disabled={isSaving}
               />
             </div>
 
@@ -142,6 +201,7 @@ export default function NewWigModal({
                     value={newWig.validityPeriod?.type || "quarterly"}
                     onChange={(e) => handleValidityChange(e.target.value)}
                     className={inputStyle}
+                    disabled={isSaving}
                   >
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
@@ -162,6 +222,7 @@ export default function NewWigModal({
                       })
                     }
                     className={inputStyle}
+                    disabled={isSaving}
                   />
               </div>
 
@@ -177,6 +238,7 @@ export default function NewWigModal({
                       })
                     }
                     className={inputStyle}
+                    disabled={isSaving}
                   />
               </div>
             </div>
@@ -186,16 +248,18 @@ export default function NewWigModal({
           <div className="p-4 flex flex-col gap-2 sticky bottom-0 bg-white border-t border-gray-100">
             {/* Save */}
             <button
-              onClick={() => onSave({ ...newWig, type: newWig.type || "wig" })}
-              className="w-full bg-teal-500 text-white py-2.5 rounded-lg font-medium hover:bg-teal-600 transition flex items-center justify-center gap-2"
+              onClick={handleSaveClick}
+              className="w-full bg-teal-500 text-white py-2.5 rounded-lg font-medium hover:bg-teal-600 transition flex items-center justify-center gap-2 disabled:bg-teal-400 disabled:cursor-not-allowed"
+              disabled={isSaving}
             >
-              <Plus size={16} /> Create Work Item
+              <Plus size={16} /> {isSaving ? "Saving..." : "Create Work Item"}
             </button>
 
             {/* Cancel */}
             <button
               onClick={onCancel}
-              className="w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-100 transition flex items-center justify-center gap-2"
+              className="w-full border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-100 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={isSaving}
             >
               <X size={16} /> Cancel
             </button>
@@ -233,7 +297,9 @@ export default function NewWigModal({
                                 measures={(newWig.leadMeasures || []).filter((m) => m.type === section)}
                                 setMeasures={(m) => handleSectionMeasures(section, m)}
                                 accountUsers={accountUsers}
-                                accountSpokes={accountSpokes} // <-- 🚨 CRITICAL FIX: Prop passed to Lead!
+                                accountSpokes={accountSpokes}
+                                // Pass down saving state to sub-component to disable inputs
+                                isSaving={isSaving} 
                             />
                         </div>
                     ))

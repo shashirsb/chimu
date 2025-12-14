@@ -1,12 +1,39 @@
-// src/pages/Users.jsx - MINIMALIST UI REWRITE (FIXED: useMemo imported)
+// src/pages/Users.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
-import { Pencil, Search, Plus } from "lucide-react";
+import { Pencil, Search, Plus, X } from "lucide-react"; // Added 'X' icon
+
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+  if (!message) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+        <div className="flex justify-between items-start p-5">
+          <div>
+            <h3 className="text-lg font-semibold text-red-700">Operation Failed</h3>
+            <p className="mt-1 text-sm text-gray-600">
+              {message}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition"
+            aria-label="Close error message"
+          >
+            <X size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [businessUnits, setBusinessUnits] = useState([]); // NEW — API-driven BU list
+  const [businessUnits, setBusinessUnits] = useState([]);
   const [filters, setFilters] = useState({
     role: "",
     region: "",
@@ -14,6 +41,9 @@ export default function Users() {
     businessUnit: ""
   });
   const [search, setSearch] = useState("");
+  
+  // --- 2. NEW: State for error handling ---
+  const [error, setError] = useState(null); 
 
   const navigate = useNavigate();
 
@@ -22,7 +52,20 @@ export default function Users() {
     api
       .get("/users")
       .then((res) => setUsers(res.data))
-      .catch((err) => console.error(err));
+      // --- 3. ENHANCED: Error handling for initial load ---
+      .catch((err) => {
+        console.error("Failed to load users:", err);
+        let userMessage = "We could not load the user list. is DB running?";
+
+        // Attempt to get a more specific reason from the API response
+        if (err.response && err.response.status === 403) {
+            userMessage = "You do not have permission to view users (Error 403 Forbidden).";
+        } else if (err.response) {
+             userMessage = `User list failed to load: ${err.response.statusText} (${err.response.status}). Please try again.`;
+        }
+        
+        setError(userMessage);
+      });
   }, []);
 
   // Unique values for filters (Memoized for performance)
@@ -36,7 +79,6 @@ export default function Users() {
   const handleAccountChange = async (e) => {
     const selectedAccount = e.target.value;
 
-    // update filters
     setFilters({
       ...filters,
       account: selectedAccount,
@@ -49,16 +91,28 @@ export default function Users() {
     }
 
     try {
-      // Assuming 'selectedAccount' is the account name
       const res = await api.get(`/accounts/name/${encodeURIComponent(selectedAccount)}`);
       setBusinessUnits(res.data.businessUnit || []); // save BU array
-    } catch (error) {
-      console.error("Failed to load business units:", error);
-      setBusinessUnits([]);
+    } catch (err) {
+      // --- 4. ENHANCED: Error handling for BU load ---
+      console.error("Failed to load business units:", err);
+      setBusinessUnits([]); // Clear BUs to prevent stale data
+      
+      let userMessage = `Failed to load Business Units for account "${selectedAccount}".`;
+
+      if (err.response) {
+          if (err.response.status === 404) {
+              userMessage = `Account "${selectedAccount}" was not found or does not exist.`;
+          } else {
+              userMessage = `Failed to load Business Units: ${err.response.statusText} (${err.response.status}).`;
+          }
+      }
+      
+      setError(userMessage);
     }
   };
 
-  // Final filtered user list
+  // Final filtered user list (unchanged)
   const filteredUsers = useMemo(() => {
     const q = search.toLowerCase();
 
@@ -83,18 +137,23 @@ export default function Users() {
     });
   }, [users, search, filters]);
 
-  // Shared classes for minimalist design
+  // Shared classes for minimalist design (unchanged)
   const filterInputStyle = "p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-white transition w-full";
   const labelStyle = "block text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase";
 
 
   return (
     <div className="p-8 min-h-screen bg-gray-50">
-      {/* Header */}
+      
+      {/* --- 5. RENDER THE POPUP --- */}
+      <ErrorPopup 
+        message={error} 
+        onClose={() => setError(null)} 
+      />
+
+      {/* Header (unchanged) */}
       <div className="flex flex-col md:flex-row justify-between mb-8">
         <h2 className="text-3xl font-light text-gray-800 tracking-wide">User Directory</h2>
-
-        {/* Minimalist Primary Button: Outline/Accent Style */}
         <button
           onClick={() => navigate("/users/new")}
           className="border border-teal-500 text-teal-600 px-5 py-2 rounded-lg hover:bg-teal-50 transition flex items-center gap-2 font-medium mt-4 md:mt-0"
@@ -103,10 +162,10 @@ export default function Users() {
         </button>
       </div>
 
-      {/* Filters Container - Clean and subtle shadow */}
+      {/* Filters Container (unchanged) */}
       <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-100">
         
-        {/* Search */}
+        {/* Search (unchanged) */}
         <div className="flex items-center gap-3 w-full border-b border-gray-200 focus-within:border-teal-500 transition mb-6 pb-1">
           <Search size={18} className="text-gray-400" />
           <input
@@ -117,10 +176,10 @@ export default function Users() {
           />
         </div>
 
-        {/* Filters Grid */}
+        {/* Filters Grid (unchanged) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
-          {/* Role Filter */}
+          
+          {/* Role Filter (unchanged) */}
           <div>
             <label className={labelStyle}>Role</label>
             <select
@@ -137,7 +196,7 @@ export default function Users() {
             </select>
           </div>
 
-          {/* Region Filter */}
+          {/* Region Filter (unchanged) */}
           <div>
             <label className={labelStyle}>Region</label>
             <select
@@ -154,13 +213,13 @@ export default function Users() {
             </select>
           </div>
 
-          {/* Account Filter */}
+          {/* Account Filter (uses enhanced handler) */}
           <div>
             <label className={labelStyle}>Account</label>
             <select
               className={filterInputStyle}
               value={filters.account}
-              onChange={handleAccountChange}
+              onChange={handleAccountChange} 
             >
               <option value="">All Accounts</option>
               {uniqueAccounts.map((a) => (
@@ -171,7 +230,7 @@ export default function Users() {
             </select>
           </div>
 
-          {/* Business Unit Filter (API-driven) */}
+          {/* Business Unit Filter (unchanged) */}
           <div>
             <label className={labelStyle}>Business Unit</label>
             <select
@@ -192,15 +251,15 @@ export default function Users() {
         </div>
       </div>
 
-      {/* User Cards */}
+      {/* User Cards (unchanged) */}
       <div className="space-y-4">
+        {/* ... (user map rendering is the same) ... */}
         {filteredUsers.map((u) => (
           <div
             key={u._id}
-            // Minimalist Card: light border, subtle hover effect
             className="flex items-center justify-between bg-white border border-gray-100 rounded-xl p-4 hover:border-teal-100 hover:shadow-md transition duration-300"
           >
-            {/* LEFT - User Info Block */}
+             {/* LEFT - User Info Block */}
             <div className="flex items-center gap-4 flex-1 min-w-0">
               {/* Avatar */}
               <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-semibold text-sm shrink-0">

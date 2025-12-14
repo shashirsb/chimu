@@ -1,17 +1,45 @@
-// src/pages/EditSpoke.jsx - MINIMALIST UI REWRITE (FINAL SCHEMA)
+// src/pages/EditSpoke.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { Save } from "lucide-react";
+import { Save, X } from "lucide-react";
 
-// Shared Tailwind classes
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Operation Failed</h3>
+                        <p className="mt-1 text-sm text-gray-600">
+                            {message}
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition"
+                        aria-label="Close error message"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+// ------------------------------------
+
+// Shared Tailwind classes (unchanged)
 const inputStyle = "w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition";
 const labelStyle = "text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase";
 const textareaStyle = "w-full p-3 border rounded-lg border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition";
 
-// Utility to convert [String] to "\n" separated String for Textarea
+// Utility to convert [String] to "\n" separated String for Textarea (unchanged)
 const arrayToString = (arr) => (Array.isArray(arr) ? arr.filter(s => s?.trim()).join('\n') : "");
-// Utility to convert "\n" separated String from Textarea to [String] for Payload
+// Utility to convert "\n" separated String from Textarea to [String] for Payload (unchanged)
 const stringToArray = (str) => {
     if (!str) return [];
     return String(str).split('\n').map(s => s.trim()).filter(s => s.length > 0);
@@ -23,14 +51,12 @@ export default function EditSpoke() {
     const location = useLocation();
     const { id } = useParams();
 
-    // 🌟 STABILIZE USER DATA 🌟
+    // User data derived from localStorage (unchanged)
     const stored = typeof window !== "undefined" && localStorage.getItem("user");
     const currentUser = stored ? JSON.parse(stored) : null;
-    // Extract stable email and accountIds reference
     const userEmail = currentUser?.email || "";
     const userAccountIds = currentUser?.accountIds || [];
 
-    // --- Map accountIds: handles objects { _id, name } or simple strings ---
     const accountOptions = useMemo(() => {
         return userAccountIds.map((a) => {
             if (typeof a === "object" && (a._id || a.id) && a.name) {
@@ -38,25 +64,26 @@ export default function EditSpoke() {
             }
             return { id: a, name: a };
         });
-    }, [userAccountIds]); // Depend only on the stable array reference
+    }, [userAccountIds]);
 
     const existing = location.state?.spoke || null;
 
-    // --- FORM STATE ---
+    // --- STATE ---
+    const [loading, setLoading] = useState(true); // NEW: Loading state for initial fetch
+    const [isSaving, setIsSaving] = useState(false); // NEW: Saving state
+    const [error, setError] = useState(null); // NEW: Error state for popup
+
     const [form, setForm] = useState({
         accountName: "",
         accountId: "", 
-        User: userEmail, // Use the stable derived value
+        User: userEmail,
         spoke: "", 
-        
         live: false, 
         
-        // NEW ARRAY FIELDS
         partners: "",
         whoCares: "",
         techStack: "",
         
-        // CORE CONTENT FIELDS
         descriptionRelevancy: "",
         bigRockGoal: "", 
         challengesPainPoints: "",
@@ -72,7 +99,6 @@ export default function EditSpoke() {
     // ----------------------------
     // LOAD EXISTING SPOKE
     // ----------------------------
-    // Dependencies: id (from URL), existing (from location state), userEmail (stable reference)
     useEffect(() => {
         const load = async () => {
             try {
@@ -84,21 +110,14 @@ export default function EditSpoke() {
                 }
 
                 if (data) {
-                    // 🌟 CRITICAL FIX: Only merge properties you need to override, 
-                    // and ensure you don't call setForm in a way that creates an unstable dependency 
-                    // loop with the data itself.
-
                     setForm((p) => ({
                         ...p,
-                        // Update with data fields
                         ...(data || {}), 
                         
-                        // Map specific fields and ensure correct types/formats for UI
                         accountId: data.accountId || "", 
                         spoke: data.Spoke || data.spoke || "", 
                         internalNotes: data.Notes || data.internalNotes || "",
 
-                        // Map ALL array fields by converting them to a single string for the textarea
                         partners: arrayToString(data.partners),
                         whoCares: arrayToString(data.whoCares),
                         techStack: arrayToString(data.techStack),
@@ -110,29 +129,41 @@ export default function EditSpoke() {
                         proofPoint: arrayToString(data.proofPoint),
                         talkTrack: arrayToString(data.talkTrack),
 
-                        User: data.User || userEmail, // Use stable userEmail
-                        live: !!data.live, // Ensure live is a boolean
+                        User: data.User || userEmail,
+                        live: !!data.live,
                     }));
                 }
+                setLoading(false); // Success path
             } catch (err) {
+                // --- ENHANCED: Error handling for initial load ---
                 console.error("Failed loading spoke:", err);
+                setLoading(false); // Stop loading
+
+                let userMessage = "Failed to retrieve the Spoke record. Please check the network.";
+
+                if (err.response) {
+                    if (err.response.status === 404) {
+                        userMessage = `Spoke ID ${id} was not found. It may have been deleted.`;
+                    } else if (err.response.status === 403) {
+                        userMessage = "You do not have permission to view this Spoke.";
+                    } else {
+                        userMessage = `Data fetch failed: ${err.response.statusText} (${err.response.status}).`;
+                    }
+                }
+                setError(userMessage); // Set error state to show popup
             }
         };
 
         load();
-    // 🌟 Use stable dependencies: id, existing object (stable via useLocation), and userEmail 🌟
-    // Note: If 'existing' is modified outside this component, you might need memoization.
-    // Assuming 'existing' comes purely from location state and is stable.
     }, [id, existing, userEmail]); 
 
     const handleAccountChange = (value) => {
-        // Find the corresponding account ID when the name changes
         const selectedAccount = accountOptions.find(opt => opt.name === value);
 
         setForm((p) => ({ 
             ...p, 
             accountName: value,
-            accountId: selectedAccount ? selectedAccount.id : "", // Update ID based on name change
+            accountId: selectedAccount ? selectedAccount.id : "",
         }));
     };
 
@@ -143,9 +174,12 @@ export default function EditSpoke() {
     // ----------------------------
     const save = async () => {
         if (!form.accountId) {
-            alert("Account ID is missing. Cannot save.");
+            setError("Cannot save: The associated Account ID is missing.");
             return;
         }
+
+        setIsSaving(true);
+        setError(null); // Clear previous errors
 
         try {
             // CRITICAL: Convert all multiline string fields back into arrays for the server
@@ -162,27 +196,51 @@ export default function EditSpoke() {
                 proofPoint: stringToArray(form.proofPoint),
                 talkTrack: stringToArray(form.talkTrack),
                 
-                // Ensure accountName and ID are passed
                 accountName: form.accountName,
                 accountId: form.accountId,
             };
 
             await api.put(`/spoke/${id}`, payload);
-            navigate("/spoke");
+            navigate("/spoke"); // Success: navigate away
         } catch (err) {
+            // --- ENHANCED: Error handling for update operation ---
             console.error(err.response?.data?.error || "Update failed", err);
-            alert(err.response?.data?.error || "Update failed");
+            
+            let userMessage = "Failed to save the Spoke record. Please check the form data and try again.";
+
+            if (err.response) {
+                if (err.response.status === 400 && err.response.data?.message) {
+                    // Validation or bad request error
+                    userMessage = `Validation Error: ${err.response.data.message}`;
+                } else if (err.response.status === 403) {
+                    userMessage = "You do not have permission to edit this Spoke record.";
+                } else {
+                    userMessage = `Update failed: ${err.response.statusText} (${err.response.status}).`;
+                }
+            }
+            setError(userMessage); // Set error state to show popup
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    if (!id) return <div className="p-8 text-red-600">Error: Spoke ID not found.</div>;
+    if (!id) return <div className="p-8 text-red-600">Error: Spoke ID not found in URL.</div>;
     
+    // Display loading state if data is still fetching and no error occurred
+    if (loading && !error) return <div className="p-8 min-h-screen bg-gray-50 text-gray-600">Loading Spoke record...</div>;
+
     // Extract only the names for the select options
     const accountNames = accountOptions.map(a => a.name);
 
 
     return (
         <div className="p-8 min-h-screen bg-gray-50">
+            {/* RENDER THE POPUP */}
+            <ErrorPopup 
+                message={error} 
+                onClose={() => setError(null)} 
+            />
+
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-light text-gray-800 tracking-wide mb-8">
                 Edit Spoke Record
@@ -192,10 +250,8 @@ export default function EditSpoke() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
       
-                {/* ============================================== */}
                 {/* 1. 📂 Core Record & Ownership Details */}
-                {/* ============================================== */}
-      
+                
                 {/* Account */}
                 <div className="flex flex-col">
                   <label className={labelStyle}>Account</label>
@@ -233,6 +289,7 @@ export default function EditSpoke() {
                     onChange={(e) => update("spoke", e.target.value)}
                     className={inputStyle}
                     placeholder="e.g., Data Lake Modernization"
+                    disabled={isSaving}
                   />
                 </div>
 
@@ -245,6 +302,7 @@ export default function EditSpoke() {
                             checked={form.live}
                             onChange={(e) => update("live", e.target.checked)}
                             className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                            disabled={isSaving}
                         />
                         <label htmlFor="live-status" className="font-medium text-gray-700">
                             Mark as **LIVE** (Ready for use)
@@ -253,9 +311,7 @@ export default function EditSpoke() {
                 </div>
 
                 
-                {/* ============================================== */}
                 {/* 2. 👥 Strategic Relationships & Tech Stack */}
-                {/* ============================================== */}
                 <div className="md:col-span-2 pt-6">
                     <h3 className="text-xl font-medium text-gray-700 mb-4 border-b pb-2">Strategic Relationships</h3>
                 </div>
@@ -269,6 +325,7 @@ export default function EditSpoke() {
                         rows={3}
                         className={textareaStyle}
                         placeholder="AWS, Google Cloud, ISVs, SIs... (Each partner on a new line)"
+                        disabled={isSaving}
                     />
                 </div>
                 
@@ -281,6 +338,7 @@ export default function EditSpoke() {
                         rows={3}
                         className={textareaStyle}
                         placeholder="CTO, VP of Engineering, Data Architect... (Each persona on a new line)"
+                        disabled={isSaving}
                     />
                 </div>
 
@@ -293,17 +351,16 @@ export default function EditSpoke() {
                         rows={3}
                         className={textareaStyle}
                         placeholder="Kafka, Kubernetes, S3, Spark... (Each technology on a new line)"
+                        disabled={isSaving}
                     />
                 </div>
                 
-                {/* ============================================== */}
                 {/* 3. 📝 CORE CONTENT & TALK TRACK FIELDS */}
-                {/* ============================================== */}
                 <div className="md:col-span-2 pt-6">
                     <h3 className="text-xl font-medium text-gray-700 mb-4 border-b pb-2">Core Narrative & Strategy</h3>
                 </div>
 
-                {/* Description / Relevancy (Textarea bound to single string) */}
+                {/* Description / Relevancy */}
                 <div className="md:col-span-2 flex flex-col">
                   <label className={labelStyle}>Description / Relevancy (Enter points on new lines)</label>
                   <textarea
@@ -312,10 +369,11 @@ export default function EditSpoke() {
                     rows={4}
                     className={textareaStyle}
                     placeholder="What is the platform? Why is it relevant? (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
                 
-                {/* Big Rock Goal (Textarea bound to single string) */}
+                {/* Big Rock Goal */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Big Rock / Business Goal (Enter points on new lines)</label>
                   <textarea
@@ -324,10 +382,11 @@ export default function EditSpoke() {
                     rows={4}
                     className={textareaStyle}
                     placeholder="What is the critical business objective? (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
 
-                {/* Why Now (Textarea bound to single string) */}
+                {/* Why Now */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Why Now (Enter points on new lines)</label>
                   <textarea
@@ -336,10 +395,11 @@ export default function EditSpoke() {
                     rows={4}
                     className={textareaStyle}
                     placeholder="Why is this a priority right now? (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
                 
-                {/* Challenges / Pain Points (Textarea bound to single string) */}
+                {/* Challenges / Pain Points */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Challenges / Pain Points (Enter points on new lines)</label>
                   <textarea
@@ -348,10 +408,11 @@ export default function EditSpoke() {
                     rows={4}
                     className={textareaStyle}
                     placeholder="Siloed data, legacy tech, lack of real-time... (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
 
-                {/* Why MongoDB (Textarea bound to single string) */}
+                {/* Why MongoDB */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Why MongoDB? (Enter points on new lines)</label>
                   <textarea
@@ -360,10 +421,11 @@ export default function EditSpoke() {
                     rows={4}
                     className={textareaStyle}
                     placeholder="Ingest flexible data, accommodate change... (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
 
-                {/* Proof Point (Textarea bound to single string) */}
+                {/* Proof Point */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Proof Point (Enter points on new lines)</label>
                   <textarea
@@ -372,10 +434,11 @@ export default function EditSpoke() {
                     rows={3}
                     className={textareaStyle}
                     placeholder="Relevant customer wins, demos... (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
 
-                {/* Talk Track (Textarea bound to single string) */}
+                {/* Talk Track */}
                 <div className="md:col-span-2 flex flex-col pt-4">
                   <label className={labelStyle}>Talk Track (Enter points on new lines)</label>
                   <textarea
@@ -384,6 +447,7 @@ export default function EditSpoke() {
                     rows={3}
                     className={textareaStyle}
                     placeholder="Key talking points for discussion (Each point on a new line)"
+                    disabled={isSaving}
                   />
                 </div>
 
@@ -396,6 +460,7 @@ export default function EditSpoke() {
                     rows={3}
                     className={textareaStyle}
                     placeholder="Any internal team notes or context"
+                    disabled={isSaving}
                   />
                 </div>
 
@@ -406,16 +471,18 @@ export default function EditSpoke() {
                 
                 <button
                   onClick={() => navigate("/spoke")}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition disabled:opacity-50"
+                  disabled={isSaving}
                 >
                   Cancel
                 </button>
       
                 <button
                   onClick={save}
-                  className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition flex items-center gap-2 font-medium"
+                  className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition flex items-center gap-2 font-medium disabled:bg-teal-400 disabled:cursor-not-allowed"
+                  disabled={isSaving}
                 >
-                    <Save size={16} /> Save Changes
+                    <Save size={16} /> {isSaving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </div>

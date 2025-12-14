@@ -1,17 +1,49 @@
-// src/pages/CreateUser.jsx - MINIMALIST UI REWRITE
+// src/pages/CreateUser.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import MultiSelect from "./components/MultiSelect";
-import { Plus } from "lucide-react"; // Added icon for the create button
+import { Plus, X } from "lucide-react"; // Added X for the popup
 
-// Shared Tailwind classes for minimalist design
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Creation Failed</h3>
+                        <p className="mt-1 text-sm text-gray-600">
+                            {message}
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition"
+                        aria-label="Close error message"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+// ------------------------------------
+
+// Shared Tailwind classes for minimalist design (unchanged)
 const inputStyle = "w-full p-2 border-b border-gray-200 focus:border-teal-500 focus:ring-0 outline-none bg-transparent transition";
 const labelStyle = "text-xs text-gray-500 mb-1 font-medium tracking-wider uppercase";
 
 export default function CreateUser() {
     const navigate = useNavigate();
     const [accounts, setAccounts] = useState([]);
+    
+    // --- 2. NEW: State for error/saving ---
+    const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [form, setForm] = useState({
         username: "",
@@ -20,7 +52,7 @@ export default function CreateUser() {
         password: "",
         roles: [],
         region: "",
-        businessUnit: [],   // ⭐ NEW FIELD
+        businessUnit: [],
         accountIds: [],
         active: true,
     });
@@ -31,23 +63,26 @@ export default function CreateUser() {
     ].map(r => ({ label: r, value: r }));
 
     useEffect(() => {
-        api.get("/accounts").then(res => {
+        api.get("/accounts")
+        .then(res => {
             setAccounts(
                 res.data.map(a => ({
                     label: a.name,
                     value: a._id,
                     name: a.name,
                     _id: a._id,
-                    businessUnit: a.businessUnit || [] // ⭐ WE NEED THIS
+                    businessUnit: a.businessUnit || []
                 }))
             );
+        })
+        .catch(err => {
+            // --- 3. ENHANCED: Error handling for accounts load ---
+            console.error("Error loading accounts:", err);
+            setError("Failed to load the list of available accounts for mapping. User creation might be limited.");
         });
     }, []);
 
-    /* --------------------------------------------------
-       ⭐ DYNAMIC BUSINESS UNIT OPTIONS
-       Based on selected accounts (form.accountIds)
-    -------------------------------------------------- */
+    /* DYNAMIC BUSINESS UNIT OPTIONS (unchanged) */
     const availableBusinessUnits = useMemo(() => {
         const selectedIds = form.accountIds.map(a => a._id);
 
@@ -67,8 +102,30 @@ export default function CreateUser() {
     }, [form.accountIds, accounts]);
 
     /* -------------------------------------------------- */
+    
+    // --- 4. Internal Validation Utility ---
+    const validateForm = () => {
+        if (!form.username.trim() || !form.email.trim() || !form.password) {
+            return "Username, Email, and Password are required fields.";
+        }
+        if (!form.email.includes('@')) {
+            return "Please enter a valid email address.";
+        }
+        return null; // Validation passed
+    };
+
 
     const submitForm = async () => {
+        setError(null);
+        
+        const validationError = validateForm();
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+
+        setIsSubmitting(true);
+
         try {
             await api.post("/users", {
                 username: form.username,
@@ -76,35 +133,58 @@ export default function CreateUser() {
                 email: form.email,
                 password: form.password,
                 region: form.region,
-
-                businessUnit: form.businessUnit, // ⭐ SAVE BUs
-
+                businessUnit: form.businessUnit,
                 roles: form.roles.map(r => r.value),
-
                 accountIds: form.accountIds.map(a => ({
                     _id: a._id,
                     name: a.name
                 })),
-
                 active: form.active
             });
 
-            navigate("/users");
+            navigate("/users"); // Success
         } catch (err) {
-            console.error(err);
-            alert("Error creating user");
+            // --- 5. ENHANCED: Error handling for submission ---
+            console.error("User creation failed:", err);
+            
+            let userMessage = "User creation failed due to a server error or network issue.";
+
+            if (err.response) {
+                if (err.response.status === 409) {
+                    // Conflict, likely duplicate username/email
+                    userMessage = `A user with that username or email already exists.`;
+                } else if (err.response.status === 400 && err.response.data?.message) {
+                    // Validation error from the backend
+                    userMessage = `Validation Error: ${err.response.data.message}`;
+                } else if (err.response.status === 403) {
+                    userMessage = "You do not have permission to create new users.";
+                } else {
+                    userMessage = `Creation failed: Server responded with ${err.response.status}.`;
+                }
+            }
+            setError(userMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
         <div className="p-8 min-h-screen bg-gray-50">
+            
+            {/* RENDER THE POPUP */}
+            <ErrorPopup 
+                message={error} 
+                onClose={() => setError(null)} 
+            />
+
             <div className="max-w-3xl mx-auto">
                 
-                {/* Header and Back Button */}
+                {/* Header and Back Button (unchanged) */}
                 <div className="flex items-center justify-between mb-8">
                     <button
                         onClick={() => navigate("/users")}
-                        className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition p-2"
+                        className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition p-2 disabled:opacity-50"
+                        disabled={isSubmitting}
                     >
                         ← Back to Users
                     </button>
@@ -120,9 +200,10 @@ export default function CreateUser() {
                         <label className={labelStyle}>Username</label>
                         <input
                             className={inputStyle}
-                            placeholder="Username"
+                            placeholder="Username (Required)"
                             value={form.username}
                             onChange={(e) => setForm({ ...form, username: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -134,6 +215,7 @@ export default function CreateUser() {
                             placeholder="Display Name"
                             value={form.displayName}
                             onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -142,9 +224,10 @@ export default function CreateUser() {
                         <label className={labelStyle}>Email</label>
                         <input
                             className={inputStyle}
-                            placeholder="Email"
+                            placeholder="Email (Required)"
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -154,9 +237,10 @@ export default function CreateUser() {
                         <input
                             className={inputStyle}
                             type="password"
-                            placeholder="Password"
+                            placeholder="Password (Required)"
                             value={form.password}
                             onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -167,6 +251,7 @@ export default function CreateUser() {
                             className={inputStyle}
                             value={form.region}
                             onChange={(e) => setForm({ ...form, region: e.target.value })}
+                            disabled={isSubmitting}
                         >
                             <option value="">Select Region</option>
                             <option value="Global">Global</option>
@@ -185,6 +270,7 @@ export default function CreateUser() {
                             onChange={(arr) => setForm({ ...form, accountIds: arr })}
                             displayKey="label"
                             valueKey="_id"
+                            disabled={isSubmitting}
                         />
                         <div className="text-xs text-gray-400 mt-2">
                             Selecting accounts dynamically loads available Business Units.
@@ -192,7 +278,7 @@ export default function CreateUser() {
                     </div>
 
 
-                    {/* ⭐ BUSINESS UNIT MULTI SELECT (Dynamic) */}
+                    {/* BUSINESS UNIT MULTI SELECT (Dynamic) */}
                     <div className="pt-2">
                         <MultiSelect
                             label="Business Units"
@@ -214,7 +300,7 @@ export default function CreateUser() {
                             }
                             displayKey="label"
                             valueKey="value"
-                            disabled={availableBusinessUnits.length === 0}
+                            disabled={availableBusinessUnits.length === 0 || isSubmitting}
                         />
                     </div>
 
@@ -228,6 +314,7 @@ export default function CreateUser() {
                             onChange={(arr) => setForm({ ...form, roles: arr })}
                             displayKey="label"
                             valueKey="value"
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -237,8 +324,8 @@ export default function CreateUser() {
                             type="checkbox"
                             checked={form.active}
                             onChange={(e) => setForm({ ...form, active: e.target.checked })}
-                            // Custom checkbox styling for accent color
                             className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 cursor-pointer" 
+                            disabled={isSubmitting}
                         />
                         <span className="text-gray-700 ml-1">User is **Active**</span>
                     </div>
@@ -247,9 +334,10 @@ export default function CreateUser() {
                     <div className="pt-6 border-t border-gray-100 mt-8">
                         <button
                             onClick={submitForm}
-                            className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition w-full flex items-center justify-center gap-2 font-medium"
+                            className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition w-full flex items-center justify-center gap-2 font-medium disabled:bg-teal-400 disabled:cursor-not-allowed"
+                            disabled={isSubmitting}
                         >
-                            <Plus size={16} /> Create User
+                            <Plus size={16} /> {isSubmitting ? "Creating User..." : "Create User"}
                         </button>
                     </div>
                 </div>

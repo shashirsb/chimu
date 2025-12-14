@@ -1,25 +1,51 @@
-// src/pages/Spoke.jsx - MINIMALIST UI REWRITE (FINAL SCHEMA)
+// src/pages/Spoke.jsx - REVISED WITH ERROR POPUP
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
-import { Pencil, Trash2, Plus, Search, Tag, Users, Heart } from "lucide-react"; 
+import { Pencil, Trash2, Plus, Search, X } from "lucide-react"; // Added 'X' icon
 import { useNavigate } from "react-router-dom";
 
-// Utility to convert Array to a searchable string for filtering
+// Utility to convert Array to a searchable string for filtering (unchanged)
 const arrayToSearchableString = (arr) => {
     return Array.isArray(arr) ? arr.filter(s => s?.trim()).join(' ').toLowerCase() : "";
 };
 
+// --- 1. NEW: Error Popup Component ---
+const ErrorPopup = ({ message, onClose }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border-l-4 border-red-500">
+                <div className="flex justify-between items-start p-5">
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-700">Operation Failed</h3>
+                        <p className="mt-1 text-sm text-gray-600">
+                            {message}
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition"
+                        aria-label="Close error message"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Spoke() {
     const [spokes, setSpokes] = useState([]);
-
     const [search, setSearch] = useState("");
-    
     const [currentPage, setCurrentPage] = useState(1);
     const [accountFilter, setAccountFilter] = useState("All");
+    
+    // --- 2. NEW: State for error handling ---
+    const [error, setError] = useState(null); 
 
     const pageSize = 6;
-
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,36 +55,44 @@ export default function Spoke() {
     const loadAll = async () => {
         try {
             const res = await api.get("/spoke"); 
+            // Handle possibility of res.data being null or undefined
             setSpokes(res.data?.docs || res.data || []);
         } catch (err) {
-            console.error(err);
+            // --- 3. ENHANCED: Error handling for initial load ---
+            console.error("Failed to load spokes:", err);
+            let userMessage = "Could not load the Spoke directory. Please check your network connection.";
+            
+            if (err.response) {
+                // Specific error messages based on status codes
+                if (err.response.status === 403) {
+                    userMessage = "You do not have permission to access the Spoke directory (Error 403).";
+                } else {
+                    userMessage = `Failed to load data: ${err.response.statusText} (${err.response.status}).`;
+                }
+            }
+            setError(userMessage);
         }
     };
 
 
-    // --- FILTERED SPOKES LOGIC ---
+    // --- FILTERED SPOKES LOGIC (unchanged) ---
     const filteredSpokes = useMemo(() => {
         const q = (search || "").trim().toLowerCase();
         
         return spokes.filter((s) => {
+            // ... filtering logic (omitted for brevity, assume unchanged)
+            const accountMatch = 
+                accountFilter === "All" || s.accountName === accountFilter;
             
-            // 1. Account Name Filter
-            if (
-                accountFilter !== "All" &&
-                s.accountName !== accountFilter
-            )
-                return false;
-            
-            // 2. Search Filter (Comprehensive client-side check)
+            if (!accountMatch) return false;
+
             if (q) {
-                // Check simple fields
                 const simpleMatch = 
                     s.accountName?.toLowerCase().includes(q) ||
                     s.spoke?.toLowerCase().includes(q) ||
                     s.User?.toLowerCase().includes(q) ||
                     s.internalNotes?.toLowerCase().includes(q);
 
-                // Check complex array fields by converting them to a single searchable string
                 const arrayMatch = 
                     arrayToSearchableString(s.partners).includes(q) ||
                     arrayToSearchableString(s.whoCares).includes(q) ||
@@ -75,7 +109,7 @@ export default function Spoke() {
                     return false;
                 }
             }
-            
+
             return true;
         });
     }, [spokes, search, accountFilter]);
@@ -93,13 +127,28 @@ export default function Spoke() {
     };
 
     const handleDelete = async (item) => {
-        if (!window.confirm(`Delete "${item.accountName}"?`)) return;
+        if (!window.confirm(`Are you sure you want to delete the Spoke: "${item.spoke || item.accountName}"?`)) return;
+        
         try {
             await api.delete(`/spoke/${item._id}`);
             setSpokes((prev) => prev.filter((p) => p._id !== item._id));
         } catch (err) {
-            console.error(err);
-            alert("Delete failed");
+            // --- 4. ENHANCED: Error handling for delete operation ---
+            console.error("Delete failed:", err);
+            
+            let userMessage = `Failed to delete Spoke "${item.spoke || item.accountName}".`;
+            
+            if (err.response) {
+                if (err.response.status === 404) {
+                    userMessage = `The Spoke record was not found or has already been deleted.`;
+                } else if (err.response.status === 403) {
+                    userMessage = `You do not have permission to delete this Spoke (Error 403).`;
+                } else {
+                    userMessage = `Delete failed: ${err.response.statusText} (${err.response.status}).`;
+                }
+            }
+            
+            setError(userMessage);
         }
     };
 
@@ -112,16 +161,22 @@ export default function Spoke() {
     }, [spokes]);
 
 
-    // Utility to check if a field array has content
+    // Utility to check if a field array has content (unchanged)
     const hasContent = (arr) => Array.isArray(arr) && arr.filter(s => s?.trim()).length > 0;
 
 
     return (
         <div className="p-8 min-h-screen bg-gray-50">
-            {/* Header */}
+            
+            {/* --- 5. RENDER THE POPUP --- */}
+            <ErrorPopup 
+                message={error} 
+                onClose={() => setError(null)} 
+            />
+
+            {/* Header (unchanged) */}
             <div className="flex flex-col md:flex-row justify-between mb-8">
                 <h2 className="text-3xl font-light text-gray-800 tracking-wide">Spoke Directory</h2>
-
                 <button
                     onClick={openNew}
                     className="border border-teal-500 text-teal-600 px-5 py-2 rounded-lg hover:bg-teal-50 transition flex items-center gap-2 font-medium mt-4 md:mt-0"
@@ -130,7 +185,7 @@ export default function Spoke() {
                 </button>
             </div>
 
-            {/* Filters Container */}
+            {/* Filters Container (unchanged) */}
             <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-100">
                 <div className="flex flex-col md:flex-row md:items-end gap-6">
                     
@@ -168,7 +223,7 @@ export default function Spoke() {
                 </div>
             </div>
 
-            {/* CARDS */}
+            {/* CARDS (unchanged rendering logic) */}
             <div className="grid grid-cols-1 gap-4">
                 {pageItems.map((s) => (
                     <div
@@ -271,7 +326,7 @@ export default function Spoke() {
             </div>
 
 
-            {/* Pagination */}
+            {/* Pagination (unchanged) */}
             <div className="mt-8 flex justify-center items-center gap-4">
                 <button
                     disabled={currentPage === 1}

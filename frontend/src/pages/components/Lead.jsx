@@ -1,19 +1,28 @@
 import React, { useState } from "react"; 
 import { Trash2 } from "lucide-react";
 
-const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) => {
-  const [expandedIndex, setExpandedIndex] = useState(null);
+// Input styling for disabled state
+const inputClass = "w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-gray-300 outline-none bg-white disabled:bg-gray-100 disabled:text-gray-500";
 
-  // You can keep this log for debugging purposes, but remove it once confirmed working.
-  // console.log("Lead.jsx received accountSpokes:", accountSpokes);
+const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [], isSaving = false }) => {
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [inputError, setInputError] = useState({}); // To hold errors for specific measures/fields
 
   const handleChange = (index, field, value) => {
     const updated = [...measures];
     updated[index][field] = value;
     setMeasures(updated);
+    // Clear error for this field when user starts typing again
+    setInputError(prev => ({ ...prev, [`${index}-${field}`]: null }));
   };
 
   const addMeasure = () => {
+    // Basic validation check before adding a new measure if the last one is not named
+    if (measures.length > 0 && !measures[measures.length - 1].name.trim()) {
+      setInputError({ [`${measures.length - 1}-name`]: "Please name the current measure first." });
+      return;
+    }
+    
     setMeasures([
       ...measures,
       {
@@ -24,8 +33,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
         assignedTo: [],
         stakeholdersContact: [],
         comments: [],
-        spokeId: "", // Initialized for Spoke selection
-        spokeName: "", // Must be initialized for consistency
+        spokeId: "",
+        spokeName: "",
       },
     ]);
     setExpandedIndex(measures.length);
@@ -42,6 +51,29 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
+  // Helper to validate and toggle expand
+  const handleToggleExpand = (i) => {
+    if (expandedIndex === i) {
+        // If closing, ensure name and targetValue are present (minimal validation)
+        if (!measures[i].name.trim()) {
+             setInputError({ [`${i}-name`]: "Measure Name is required." });
+             return;
+        }
+        if (measures[i].targetValue === undefined || measures[i].targetValue === null) {
+            setInputError({ [`${i}-targetValue`]: "Target value is required." });
+            return;
+        }
+        setInputError({}); // Clear errors on success
+    }
+    toggleExpand(i);
+  };
+
+  const renderError = (index, field) => {
+    return inputError[`${index}-${field}`] ? (
+        <p className="text-red-600 text-xs mt-1">{inputError[`${index}-${field}`]}</p>
+    ) : null;
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {measures.map((m, i) => (
@@ -52,7 +84,7 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
           {/* HEADER */}
           <div
             className="flex justify-between items-center px-4 py-3 cursor-pointer border-b border-gray-200/60"
-            onClick={() => toggleExpand(i)}
+            onClick={() => handleToggleExpand(i)}
           >
             <span className="font-medium text-gray-700">
               {m.name || `Measure ${i + 1}`}
@@ -63,7 +95,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                 e.stopPropagation();
                 removeMeasure(i);
               }}
-              className="text-gray-500 hover:text-red-600 transition"
+              className="text-gray-500 hover:text-red-600 transition disabled:opacity-50"
+              disabled={isSaving}
             >
               <Trash2 size={18} />
             </button>
@@ -73,46 +106,43 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
           {expandedIndex === i && (
             <div className="p-4 space-y-4 bg-white/50">
               {/* NAME */}
-              <input
-                type="text"
-                placeholder="Measure Name"
-                value={m.name}
-                onChange={(e) => handleChange(i, "name", e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-gray-300 outline-none bg-white"
-              />
+              <div>
+                <input
+                  type="text"
+                  placeholder="Measure Name (Required)"
+                  value={m.name}
+                  onChange={(e) => handleChange(i, "name", e.target.value)}
+                  className={inputClass}
+                  disabled={isSaving}
+                />
+                {renderError(i, 'name')}
+              </div>
 
-              {/* SPOKE SELECTION - Corrected logic to populate dropdown */}
+              {/* SPOKE SELECTION */}
               <div>
                 <label className="block text-xs text-gray-500 mb-1 font-medium">Link to Spoke</label>
                 <select
-                  // 1. VALUE: Bind to a single string ID
                   value={m.spokeId || ""}
                   onChange={(e) => {
                     const selectedId = e.target.value;
-
                     if (selectedId) {
-                      // 2. Find the selected spoke object using its _id
                       const selectedSpoke = accountSpokes.find((s) => s._id === selectedId);
-
                       if (selectedSpoke) {
-                        // 3. Update both ID and Name in the measure object
                         handleChange(i, "spokeId", selectedSpoke._id);
                         handleChange(i, "spokeName", selectedSpoke.spoke); 
                       }
                     } else {
-                      // Handle selection of the default option (clear values)
                       handleChange(i, "spokeId", "");
                       handleChange(i, "spokeName", "");
                     }
                   }}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-gray-300 outline-none"
+                  className={inputClass}
+                  disabled={isSaving}
                 >
                   <option value="">-- Select Spoke (Optional) --</option>
-                  
-                  {/* CRITICAL: Mapping the accountSpokes prop to <option> elements */}
                   {accountSpokes.map((s) => (
                     <option key={s._id} value={s._id}>
-                      {s.spoke} {/* Display the spoke name */}
+                      {s.spoke}
                     </option>
                   ))}
                 </select>
@@ -120,20 +150,27 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
 
               {/* VALUES */}
               <div className="flex gap-3">
-                <input
-                  type="number"
-                  placeholder="Target Value"
-                  value={m.targetValue}
-                  onChange={(e) => handleChange(i, "targetValue", Number(e.target.value))}
-                  className="w-1/3 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-gray-300 outline-none bg-white"
-                />
-
+                {/* Target Value */}
+                <div className="w-1/3">
+                    <input
+                      type="number"
+                      placeholder="Target Value (Required)"
+                      value={m.targetValue}
+                      onChange={(e) => handleChange(i, "targetValue", Number(e.target.value))}
+                      className={inputClass}
+                      disabled={isSaving}
+                    />
+                    {renderError(i, 'targetValue')}
+                </div>
+                
+                {/* Current Value */}
                 <input
                   type="number"
                   placeholder="Current Value"
                   value={m.currentValue}
                   onChange={(e) => handleChange(i, "currentValue", Number(e.target.value))}
-                  className="w-1/3 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-gray-300 outline-none bg-white"
+                  className={`${inputClass} w-1/3`}
+                  disabled={isSaving}
                 />
 
                 {/* AssignedTo */}
@@ -142,19 +179,18 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                   value={m.assignedTo.map((u) => u._id)}
                   onChange={(e) => {
                     const selected = Array.from(e.target.selectedOptions);
-                    // Map selected IDs back to user objects, filtering out undefined
                     const users = selected.map((opt) =>
                       accountUsers.find((u) => u._id === opt.value)
                     ).filter(Boolean); 
 
-                    // Map to final structure
                     handleChange(
                       i,
                       "assignedTo",
                       users.map((u) => ({ _id: u._id, name: u.displayName }))
                     );
                   }}
-                  className="w-1/3 border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-gray-300 outline-none"
+                  className={`${inputClass} w-1/3`}
+                  disabled={isSaving}
                 >
                   {accountUsers.map((u) => (
                     <option key={u._id} value={u._id}>
@@ -168,7 +204,7 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
               <div>
                 <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                   <div
-                    className="bg-gray-700 h-full rounded-full transition-all"
+                    className="bg-teal-500 h-full rounded-full transition-all"
                     style={{
                       width: `${Math.min((m.currentValue / m.targetValue) * 100, 100)}%`,
                     }}
@@ -193,7 +229,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                         updated[i].stakeholdersContact[sIdx].name = e.target.value;
                         setMeasures(updated);
                       }}
-                      className="border border-gray-300 rounded-xl px-2 py-1 text-sm flex-1 bg-white focus:ring-2 focus:ring-gray-300 outline-none"
+                      className={`${inputClass} flex-1`}
+                      disabled={isSaving}
                     />
                     <input
                       type="email"
@@ -204,7 +241,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                         updated[i].stakeholdersContact[sIdx].email = e.target.value;
                         setMeasures(updated);
                       }}
-                      className="border border-gray-300 rounded-xl px-2 py-1 text-sm flex-1 bg-white focus:ring-2 focus:ring-gray-300 outline-none"
+                      className={`${inputClass} flex-1`}
+                      disabled={isSaving}
                     />
                     <button
                       onClick={() => {
@@ -212,7 +250,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                         updated[i].stakeholdersContact.splice(sIdx, 1);
                         setMeasures(updated);
                       }}
-                      className="text-gray-500 hover:text-red-600 text-sm"
+                      className="text-gray-500 hover:text-red-600 text-sm disabled:opacity-50"
+                      disabled={isSaving}
                     >
                       ✕
                     </button>
@@ -226,7 +265,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                     updated[i].stakeholdersContact.push({ name: "", email: "" });
                     setMeasures(updated);
                   }}
-                  className="text-gray-600 hover:text-black text-sm"
+                  className="text-gray-600 hover:text-black text-sm disabled:opacity-50"
+                  disabled={isSaving}
                 >
                   + Add Stakeholder
                 </button>
@@ -245,7 +285,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                         updated[i].comments[cIdx].text = e.target.value;
                         setMeasures(updated);
                       }}
-                      className="border border-gray-300 rounded-xl px-2 py-1 text-sm flex-1 bg-white focus:ring-2 focus:ring-gray-300 outline-none"
+                      className={`${inputClass} flex-1`}
+                      disabled={isSaving}
                     />
                     <button
                       onClick={() => {
@@ -253,7 +294,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                         updated[i].comments.splice(cIdx, 1);
                         setMeasures(updated);
                       }}
-                      className="text-gray-500 hover:text-red-600 text-sm"
+                      className="text-gray-500 hover:text-red-600 text-sm disabled:opacity-50"
+                      disabled={isSaving}
                     >
                       ✕
                     </button>
@@ -267,7 +309,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
                     updated[i].comments.push({ text: "", createdAt: new Date() });
                     setMeasures(updated);
                   }}
-                  className="text-gray-600 hover:text-black text-sm"
+                  className="text-gray-600 hover:text-black text-sm disabled:opacity-50"
+                  disabled={isSaving}
                 >
                   + Add Comment
                 </button>
@@ -280,7 +323,8 @@ const Lead = ({ measures, setMeasures, accountUsers = [], accountSpokes = [] }) 
       <button
         type="button"
         onClick={addMeasure}
-        className="px-4 py-2 rounded-xl bg-gray-800 text-white text-sm hover:bg-black transition w-max"
+        className="px-4 py-2 rounded-xl bg-gray-800 text-white text-sm hover:bg-black transition w-max disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isSaving}
       >
         + Add Measure
       </button>
