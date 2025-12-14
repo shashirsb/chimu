@@ -346,24 +346,24 @@ export default function ContactModal({ isOpen, onClose, customers, nodeByEmailMa
               </div>
             </div>
 
-            {/* Row 2: 30% - Key Stakeholders */}
-            <div className="h-[30%] grid grid-cols-4 gap-4">
-              {nearestRoles.map(role => (
-                <div key={role.value} className="p-3 border rounded-lg bg-white shadow-md">
-                  <div className="flex items-center gap-2 mb-2">
-                    <role.icon size={18} className="text-indigo-600" />
-                    <h4 className="font-bold text-sm text-gray-800">{role.label}</h4>
-                  </div>
-                  {role.found ? (
-                    <PersonCard person={role.found.person} level={`+${role.found.level}`} roleIcon={role.icon} />
-                  ) : (
-                    <div className="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-md">
-                      No one found with the **{role.label}** role up the reporting chain.
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        {/* Row 2: 30% - Key Stakeholders */}
+<div className="h-[30%] flex flex-row gap-4 overflow-x-auto p-1">
+  {nearestRoles.map(role => (
+    <div key={role.value} className="flex-shrink-0 w-64 p-3 border rounded-lg bg-white shadow-md">
+      <div className="flex items-center gap-2 mb-2">
+        <role.icon size={18} className="text-indigo-600" />
+        <h4 className="font-bold text-sm text-gray-800">{role.label}</h4>
+      </div>
+      {role.found ? (
+        <PersonCard person={role.found.person} level={`+${role.found.level}`} roleIcon={role.icon} />
+      ) : (
+        <div className="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-md">
+          No one found with the **{role.label}** role up the reporting chain.
+        </div>
+      )}
+    </div>
+  ))}
+</div>
           </div>
         )}
       </div>

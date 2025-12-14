@@ -6,7 +6,8 @@ const {
   getAccountOrgChart,
   listCustomers,
   deleteCustomersByEmail,
-  getCustomersByEmail
+  getCustomersByEmail,
+  bulkUpdateCustomers
 } = require("../controllers/customerMappingController");
 
 // POST /api/customer
@@ -27,5 +28,7 @@ router.get("/", listCustomers);
 router.put("/:email", upsertCustomer);
 
 router.delete("/:email", deleteCustomersByEmail);
+
+router.post("/bulk-update", bulkUpdateCustomers);
 
 module.exports = router;

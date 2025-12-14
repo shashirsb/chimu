@@ -417,3 +417,57 @@ exports.deleteCustomersByEmail = async (req, res) => {
         });
     }
 };
+
+
+/* ======================================================
+   POST /api/customer/bulk-update
+   Batch update reporting lines for multiple customers
+   ====================================================== */
+exports.bulkUpdateCustomers = async (req, res) => {
+    try {
+        const { updates, accountId } = req.body;
+
+        if (!updates || !Array.isArray(updates) || updates.length === 0) {
+            return res.status(400).json({ error: "No updates provided" });
+        }
+
+        // Prepare Bulk Operations for Mongoose
+        const bulkOps = updates.map((u) => {
+            // Optional: Security check to ensure we only update docs in the active account
+            const filter = { email: u.email };
+            if (accountId) {
+                filter.accountId = accountId;
+            }
+
+            return {
+                updateOne: {
+                    filter: filter,
+                    update: {
+                        $set: {
+                            reportingTo: u.reportingTo,
+                            reportees: u.reportees
+                            // We do NOT update 'updatedAt' manually here because 
+                            // Mongoose timestamps usually handle it, or we can add it explicitly if needed.
+                        }
+                    }
+                }
+            };
+        });
+
+        // Execute Bulk Write
+        const result = await Customer.bulkWrite(bulkOps);
+
+        res.json({
+            success: true,
+            matchedCount: result.matchedCount,
+            modifiedCount: result.modifiedCount
+        });
+
+    } catch (err) {
+        console.error("Bulk update failed:", err);
+        res.status(500).json({
+            message: "Bulk update failed",
+            error: err.message
+        });
+    }
+};
