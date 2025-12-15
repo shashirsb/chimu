@@ -243,7 +243,7 @@ export default function ContactModal({ isOpen, onClose, customers, nodeByEmailMa
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">Org Chart Contact Finder</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Sales View</h2>
           <button onClick={resetModal} className="p-2 rounded-full hover:bg-gray-100">
             <X size={20} />
           </button>
