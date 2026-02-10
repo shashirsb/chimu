@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Sales Calculator - Individual Rep</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        
+        const Target = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+        );
+        
+        const TrendingUp = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+        );
+        
+        const Calendar = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+        
+        const Phone = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+        );
+
+        function IndividualRepCalculator() {
+            const [targetMode, setTargetMode] = useState('annual');
+            const [annualNARRTarget, setAnnualNARRTarget] = useState(2.5);
+            const [quarterlyNARRTarget, setQuarterlyNARRTarget] = useState(0.625);
+            const [avgDealSize, setAvgDealSize] = useState(250000);
+            
+            const [dmToNbm, setDmToNbm] = useState(40);
+            const [nbmToQualifiedErr, setNbmToQualifiedErr] = useState(50);
+            const [qualifiedToApprovedErr, setQualifiedToApprovedErr] = useState(60);
+            const [approvedErrToNarr, setApprovedErrToNarr] = useState(75);
+            
+            const [showOutreach, setShowOutreach] = useState(false);
+            const [callsPerDM, setCallsPerDM] = useState(8);
+            const [emailsPerDM, setEmailsPerDM] = useState(12);
+            const [workingWeeksPerYear, setWorkingWeeksPerYear] = useState(48);
+            
+            const [showCommission, setShowCommission] = useState(false);
+            const [baseSalary, setBaseSalary] = useState(80000);
+            const [ote, setOte] = useState(160000);
+            
+            const [commissionTiers, setCommissionTiers] = useState([
+                { minPercent: 0, maxPercent: 100, rate: 3.2, label: 'Base (0-100%)' },
+                { minPercent: 100, maxPercent: 125, rate: 3.84, label: 'Tier 1 (100-125%)' },
+                { minPercent: 125, maxPercent: 150, rate: 4.8, label: 'Tier 2 (125-150%)' },
+                { minPercent: 150, maxPercent: 200, rate: 6.4, label: 'Tier 3 (150%+)' }
+            ]);
+            
+            const actualAnnualTarget = targetMode === 'annual' ? annualNARRTarget : quarterlyNARRTarget * 4;
+            const actualQuarterlyTarget = targetMode === 'annual' ? annualNARRTarget / 4 : quarterlyNARRTarget;
+            
+            const dealsNeeded = Math.ceil((actualAnnualTarget * 1000000) / avgDealSize);
+            const approvedErrNeeded = Math.ceil(dealsNeeded / (approvedErrToNarr / 100));
+            const qualifiedErrNeeded = Math.ceil(approvedErrNeeded / (qualifiedToApprovedErr / 100));
+            const nbmNeeded = Math.ceil(qualifiedErrNeeded / (nbmToQualifiedErr / 100));
+            const dmNeeded = Math.ceil(nbmNeeded / (dmToNbm / 100));
+            
+            const overallConversion = ((dmToNbm/100) * (nbmToQualifiedErr/100) * (qualifiedToApprovedErr/100) * (approvedErrToNarr/100) * 100).toFixed(1);
+            const qualifiedToClose = ((qualifiedToApprovedErr/100) * (approvedErrToNarr/100) * 100).toFixed(1);
+            
+            const quarterlyDMs = Math.ceil(dmNeeded / 4);
+            const monthlyDMs = Math.ceil(dmNeeded / 12);
+            const weeklyDMs = Math.ceil(dmNeeded / workingWeeksPerYear);
+            const dailyDMs = Math.ceil(weeklyDMs / 5);
+            
+            const quarterlyNBMs = Math.ceil(nbmNeeded / 4);
+            const monthlyNBMs = Math.ceil(nbmNeeded / 12);
+            const weeklyNBMs = Math.ceil(nbmNeeded / workingWeeksPerYear);
+            
+            const quarterlyDeals = (dealsNeeded / 4).toFixed(1);
+            const monthlyDeals = (dealsNeeded / 12).toFixed(1);
+            
+            const dailyCalls = Math.ceil(dailyDMs * callsPerDM);
+            const weeklyCalls = Math.ceil(weeklyDMs * callsPerDM);
+            const dailyEmails = Math.ceil(dailyDMs * emailsPerDM);
+            const weeklyEmails = Math.ceil(weeklyDMs * emailsPerDM);
+            
+            const calculateCommissionEarnings = () => {
+                const targetRevenue = actualAnnualTarget * 1000000;
+                let totalCommission = 0;
+                
+                commissionTiers.forEach((tier) => {
+                    const tierStartRevenue = targetRevenue * (tier.minPercent / 100);
+                    const tierEndRevenue = targetRevenue * (Math.min(tier.maxPercent, 100) / 100);
+                    const tierRevenue = tierEndRevenue - tierStartRevenue;
+                    
+                    if (tierRevenue > 0) {
+                        totalCommission += tierRevenue * (tier.rate / 100);
+                    }
+                });
+                
+                return totalCommission;
+            };
+            
+            const totalAnnualCommission = calculateCommissionEarnings();
+            const totalOTE = baseSalary + totalAnnualCommission;
+            const commissionPerDeal = totalAnnualCommission / dealsNeeded;
+            const commissionPerDM = totalAnnualCommission / dmNeeded;
+            const commissionPerNBM = totalAnnualCommission / nbmNeeded;
+            
+            const stages = [
+                { name: 'Discovery Meetings', value: dmNeeded, color: 'bg-blue-500' },
+                { name: 'New Business Meetings', value: nbmNeeded, color: 'bg-indigo-500' },
+                { name: 'Qualified ERR', value: qualifiedErrNeeded, color: 'bg-purple-500' },
+                { name: 'Approved ERR', value: approvedErrNeeded, color: 'bg-pink-500' },
+                { name: 'Closed Deals', value: dealsNeeded, color: 'bg-green-500' }
+            ];
+            
+            const maxValue = dmNeeded;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
+                    <div className="max-w-5xl mx-auto">
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 mb-8">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Target className="w-10 h-10 text-blue-600" />
+                                <h1 className="text-3xl md:text-4xl font-bold text-slate-800">My Sales Calculator</h1>
+                            </div>
+                            <p className="text-slate-600 mb-6">Figure out how much outreach you need to hit your target.</p>
+                            
+                            <div className="flex gap-2 mb-4">
+                                <button
+                                    onClick={() => setTargetMode('annual')}
+                                    className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                                        targetMode === 'annual' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    Annual Target
+                                </button>
+                                <button
+                                    onClick={() => setTargetMode('quarterly')}
+                                    className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                                        targetMode === 'quarterly' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    Quarterly Target
+                                </button>
+                            </div>
+                            
+                            {targetMode === 'annual' ? (
+                                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white mb-6">
+                                    <div className="text-sm font-medium mb-2">My Annual NARR Target</div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-4xl font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            min="0.1"
+                                            max="20"
+                                            step="0.1"
+                                            value={annualNARRTarget}
+                                            onChange={(e) => setAnnualNARRTarget(Number(e.target.value))}
+                                            className="w-48 text-4xl font-bold bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white"
+                                        />
+                                        <span className="text-4xl font-bold">M</span>
+                                    </div>
+                                    <div className="text-sm mt-3 opacity-90">
+                                        {dealsNeeded} deals @ ${(avgDealSize / 1000).toFixed(0)}K avg • ${actualQuarterlyTarget.toFixed(2)}M per quarter
+                                    </div>
+                                    <div className="bg-white/10 rounded-lg p-3 mt-4 text-sm">
+                                        💡 <strong>Start here:</strong> This is your quota or personal goal for the year. Everything else builds from this number.
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl p-6 text-white mb-6">
+                                    <div className="text-sm font-medium mb-2">My Quarterly NARR Target</div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-4xl font-bold">$</span>
+                                        <input
+                                            type="number"
+                                            min="0.1"
+                                            max="5"
+                                            step="0.05"
+                                            value={quarterlyNARRTarget}
+                                            onChange={(e) => setQuarterlyNARRTarget(Number(e.target.value))}
+                                            className="w-48 text-4xl font-bold bg-white/20 border-2 border-white/30 rounded-lg px-3 py-2 text-white"
+                                        />
+                                        <span className="text-4xl font-bold">M</span>
+                                    </div>
+                                    <div className="text-sm mt-3 opacity-90">
+                                        {Math.ceil(dealsNeeded/4)} deals this quarter @ ${(avgDealSize / 1000).toFixed(0)}K avg • ${actualAnnualTarget.toFixed(2)}M annually
+                                    </div>
+                                    <div className="bg-white/10 rounded-lg p-3 mt-4 text-sm">
+                                        💡 <strong>Quarterly focus:</strong> Great for tracking near-term performance. Hit this 4 times and you're at ${actualAnnualTarget.toFixed(1)}M for the year!
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="bg-blue-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-blue-600">2</div>
+                                        <h3 className="font-semibold text-slate-800">Deal Economics</h3>
+                                    </div>
+                                    
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="text-sm font-semibold text-slate-700">Average Deal Size</label>
+                                            <span className="text-lg font-bold text-blue-600">${(avgDealSize / 1000).toFixed(0)}K</span>
+                                        </div>
+                                        <input type="range" min="25000" max="1000000" step="25000" value={avgDealSize}
+                                            onChange={(e) => setAvgDealSize(Number(e.target.value))}
+                                            className="w-full h-3 bg-slate-200 rounded-lg" />
+                                        <div className="text-xs text-slate-600 mt-2 bg-slate-50 rounded p-2">
+                                            📊 <strong>What this means:</strong> Bigger deals = fewer closes needed, but they're usually harder to get. Smaller deals = more volume, but faster to close.
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="text-sm font-semibold text-slate-700">Working Weeks/Year</label>
+                                            <span className="text-lg font-bold text-blue-600">{workingWeeksPerYear}</span>
+                                        </div>
+                                        <input type="range" min="44" max="52" step="1" value={workingWeeksPerYear}
+                                            onChange={(e) => setWorkingWeeksPerYear(Number(e.target.value))}
+                                            className="w-full h-3 bg-slate-200 rounded-lg" />
+                                        <div className="text-xs text-slate-600 mt-2 bg-slate-50 rounded p-2">
+                                            🗓️ Account for vacation, holidays, and conferences. 48 weeks = 4 weeks off per year.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="bg-purple-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-purple-600">3</div>
+                                        <h3 className="font-semibold text-slate-800">Conversion Rates</h3>
+                                    </div>
+                                    
+                                    <div className="text-xs text-slate-600 mb-3 bg-amber-50 border border-amber-200 rounded p-2">
+                                        ⚡ <strong>Pro tip:</strong> Small improvements here have HUGE impact. A 5% better conversion = way fewer meetings needed!
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1">
+                                                <span>DM → NBM</span>
+                                                <span className="font-bold">{dmToNbm}%</span>
+                                            </div>
+                                            <input type="range" min="10" max="80" value={dmToNbm}
+                                                onChange={(e) => setDmToNbm(Number(e.target.value))}
+                                                className="w-full h-2 bg-blue-200 rounded-lg" />
+                                            <div className="text-xs text-slate-500 mt-1">How many first calls lead to real meetings</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1">
+                                                <span>NBM → Qualified</span>
+                                                <span className="font-bold">{nbmToQualifiedErr}%</span>
+                                            </div>
+                                            <input type="range" min="10" max="80" value={nbmToQualifiedErr}
+                                                onChange={(e) => setNbmToQualifiedErr(Number(e.target.value))}
+                                                className="w-full h-2 bg-indigo-200 rounded-lg" />
+                                            <div className="text-xs text-slate-500 mt-1">Meetings that turn into qualified opportunities</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1">
+                                                <span>Qualified → Approved</span>
+                                                <span className="font-bold">{qualifiedToApprovedErr}%</span>
+                                            </div>
+                                            <input type="range" min="10" max="90" value={qualifiedToApprovedErr}
+                                                onChange={(e) => setQualifiedToApprovedErr(Number(e.target.value))}
+                                                className="w-full h-2 bg-purple-200 rounded-lg" />
+                                            <div className="text-xs text-slate-500 mt-1">Qualified deals that get approved</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1">
+                                                <span>Approved → Closed</span>
+                                                <span className="font-bold">{approvedErrToNarr}%</span>
+                                            </div>
+                                            <input type="range" min="20" max="95" value={approvedErrToNarr}
+                                                onChange={(e) => setApprovedErrToNarr(Number(e.target.value))}
+                                                className="w-full h-2 bg-pink-200 rounded-lg" />
+                                            <div className="text-xs text-slate-500 mt-1">Approved deals you actually close</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="mt-4 pt-4 border-t border-slate-200">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <div className="text-xs text-slate-600">Overall (DM → Close)</div>
+                                                <div className="text-xl font-bold text-green-600">{overallConversion}%</div>
+                                                <div className="text-xs text-slate-600 mt-1 bg-green-50 rounded p-2">
+                                                    🎯 Industry average is 5-15%. Above 10% is great!
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-slate-600">Qualified → Close</div>
+                                                <div className="text-xl font-bold text-purple-600">{qualifiedToClose}%</div>
+                                                <div className="text-xs text-slate-600 mt-1 bg-purple-50 rounded p-2">
+                                                    🔥 Your late-stage win rate. Focus here for quick wins!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6 mb-8">
+                            <div className="bg-white rounded-2xl shadow-xl p-6">
+                                <h2 className="text-xl font-bold text-slate-800 mb-2">Daily Activity</h2>
+                                <p className="text-sm text-slate-600 mb-4">
+                                    This is what you need to DO every day/week to hit your target. These are your actual activities.
+                                </p>
+                                
+                                <div className="space-y-4">
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white">
+                                        <div className="text-sm font-medium mb-1 opacity-90">Discovery Meetings / Day</div>
+                                        <div className="text-5xl font-bold mb-2">{dailyDMs}</div>
+                                        <div className="text-sm opacity-90">{weeklyDMs} per week • {monthlyDMs} per month</div>
+                                        <div className="bg-white/20 rounded-lg p-2 mt-3 text-xs">
+                                            🔥 <strong>This is your most important number.</strong> Hit this daily and everything else follows.
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-5 text-white">
+                                        <div className="text-sm font-medium mb-1 opacity-90">NBMs / Week</div>
+                                        <div className="text-4xl font-bold mb-2">{weeklyNBMs}</div>
+                                        <div className="text-sm opacity-90">{monthlyNBMs} per month</div>
+                                        <div className="bg-white/20 rounded-lg p-2 mt-3 text-xs">
+                                            These are qualified meetings with real potential buyers
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-5 text-white">
+                                        <div className="text-sm font-medium mb-1 opacity-90">Deals / Quarter</div>
+                                        <div className="text-4xl font-bold mb-2">{quarterlyDeals}</div>
+                                        <div className="text-sm opacity-90">{monthlyDeals} per month</div>
+                                        <div className="bg-white/20 rounded-lg p-2 mt-3 text-xs">
+                                            Track this to make sure you're on pace each quarter
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-6">
+                                    <button
+                                        onClick={() => setShowOutreach(!showOutreach)}
+                                        className="w-full py-3 px-4 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg font-semibold transition-all"
+                                    >
+                                        {showOutreach ? '− Hide' : '+ Show'} Outreach Details
+                                    </button>
+                                </div>
+                                
+                                {showOutreach && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Calls / Day</div>
+                                            <div className="text-4xl font-bold mb-2">{dailyCalls}</div>
+                                            <div className="text-sm opacity-90">{weeklyCalls} per week</div>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Emails / Day</div>
+                                            <div className="text-3xl font-bold mb-2">{dailyEmails}</div>
+                                            <div className="text-sm opacity-90">{weeklyEmails} per week</div>
+                                        </div>
+                                        
+                                        <div className="bg-slate-50 rounded-lg p-4">
+                                            <div className="text-sm font-semibold text-slate-700 mb-3">Adjust Ratios</div>
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <div className="flex justify-between text-xs mb-1">
+                                                        <span>Calls per DM</span>
+                                                        <span className="font-bold">{callsPerDM}</span>
+                                                    </div>
+                                                    <input type="range" min="3" max="20" value={callsPerDM}
+                                                        onChange={(e) => setCallsPerDM(Number(e.target.value))}
+                                                        className="w-full h-2 bg-orange-200 rounded-lg" />
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between text-xs mb-1">
+                                                        <span>Emails per DM</span>
+                                                        <span className="font-bold">{emailsPerDM}</span>
+                                                    </div>
+                                                    <input type="range" min="5" max="30" value={emailsPerDM}
+                                                        onChange={(e) => setEmailsPerDM(Number(e.target.value))}
+                                                        className="w-full h-2 bg-amber-200 rounded-lg" />
+                                                </div>
+                                            </div>
+                                            <div className="text-xs text-slate-600 mt-3 bg-amber-50 rounded p-2">
+                                                💡 Track your actual ratios! If it takes you 10 calls to book a meeting, adjust here.
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="mt-6">
+                                    <button
+                                        onClick={() => setShowCommission(!showCommission)}
+                                        className="w-full py-3 px-4 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg font-semibold transition-all"
+                                    >
+                                        {showCommission ? '− Hide' : '💰 Show'} Commission Calculator
+                                    </button>
+                                </div>
+                                
+                                {showCommission && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="bg-slate-50 rounded-lg p-4">
+                                            <div className="text-sm font-semibold text-slate-700 mb-3">Your Compensation Plan</div>
+                                            
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Base Salary (Annual)</label>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-lg font-bold">$</span>
+                                                    <input type="number" min="0" max="500000" step="5000" value={baseSalary}
+                                                        onChange={(e) => setBaseSalary(Number(e.target.value))}
+                                                        className="flex-1 text-lg font-bold border-2 border-slate-300 rounded-lg px-3 py-2" />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">OTE - On Target Earnings (at 100%)</label>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-lg font-bold">$</span>
+                                                    <input type="number" min="0" max="1000000" step="5000" value={ote}
+                                                        onChange={(e) => setOte(Number(e.target.value))}
+                                                        className="flex-1 text-lg font-bold border-2 border-slate-300 rounded-lg px-3 py-2" />
+                                                </div>
+                                                <div className="text-xs text-slate-600 mt-1">
+                                                    Commission at 100%: ${(ote - baseSalary).toLocaleString()}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="text-xs font-semibold text-slate-700 mb-2">Commission Tiers (% of quota)</div>
+                                            <div className="text-xs text-slate-600 mb-3 bg-blue-50 rounded p-2">
+                                                💡 Enter commission rate as % of NARR for each tier. Example: 3.2% means you earn 3.2% of revenue in that tier.
+                                            </div>
+                                            {commissionTiers.map((tier, index) => (
+                                                <div key={index} className="mb-3 pb-3 border-b border-slate-200 last:border-b-0">
+                                                    <div className="text-xs font-medium text-slate-700 mb-2">{tier.label}</div>
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        <div>
+                                                            <label className="text-xs text-slate-600">From %</label>
+                                                            <input type="number" min="0" max="200" step="5" value={tier.minPercent}
+                                                                onChange={(e) => {
+                                                                    const newTiers = [...commissionTiers];
+                                                                    newTiers[index].minPercent = Number(e.target.value);
+                                                                    setCommissionTiers(newTiers);
+                                                                }}
+                                                                className="w-full text-sm border rounded px-2 py-1" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs text-slate-600">To %</label>
+                                                            <input type="number" min="0" max="200" step="5" value={tier.maxPercent}
+                                                                onChange={(e) => {
+                                                                    const newTiers = [...commissionTiers];
+                                                                    newTiers[index].maxPercent = Number(e.target.value);
+                                                                    setCommissionTiers(newTiers);
+                                                                }}
+                                                                className="w-full text-sm border rounded px-2 py-1" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs text-slate-600">Rate %</label>
+                                                            <input type="number" min="0" max="20" step="0.01" value={tier.rate}
+                                                                onChange={(e) => {
+                                                                    const newTiers = [...commissionTiers];
+                                                                    newTiers[index].rate = Number(e.target.value);
+                                                                    setCommissionTiers(newTiers);
+                                                                }}
+                                                                className="w-full text-sm border rounded px-2 py-1" placeholder="3.2" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-xs text-slate-500 mt-1">
+                                                        {tier.rate}% of NARR in this tier
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Total Annual Earnings (at 100%)</div>
+                                            <div className="text-4xl font-bold mb-2">${(totalOTE / 1000).toFixed(0)}K</div>
+                                            <div className="text-sm opacity-90">
+                                                ${(baseSalary / 1000).toFixed(0)}K base + ${(totalAnnualCommission / 1000).toFixed(0)}K commission
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Value Per DM</div>
+                                            <div className="text-3xl font-bold mb-2">${commissionPerDM.toFixed(0)}</div>
+                                            <div className="text-sm opacity-90">Every discovery meeting is worth this much</div>
+                                            <div className="bg-white/20 rounded-lg p-2 mt-3 text-xs">
+                                                💰 Do {dailyDMs} DMs/day = ${(commissionPerDM * dailyDMs).toFixed(0)}/day in future earnings
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Value Per NBM</div>
+                                            <div className="text-3xl font-bold mb-2">${commissionPerNBM.toFixed(0)}</div>
+                                            <div className="text-sm opacity-90">Every qualified meeting is worth this much</div>
+                                            <div className="bg-white/20 rounded-lg p-2 mt-3 text-xs">
+                                                💰 Do {weeklyNBMs} NBMs/week = ${(commissionPerNBM * weeklyNBMs).toFixed(0)}/week in future earnings
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-5 text-white">
+                                            <div className="text-sm font-medium mb-1 opacity-90">Value Per Deal</div>
+                                            <div className="text-3xl font-bold mb-2">${(commissionPerDeal / 1000).toFixed(1)}K</div>
+                                            <div className="text-sm opacity-90">Average commission per closed deal</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="bg-white rounded-2xl shadow-xl p-6">
+                                <h2 className="text-xl font-bold text-slate-800 mb-4">Annual Funnel</h2>
+                                
+                                <div className="space-y-3">
+                                    {stages.map((stage, index) => {
+                                        const widthPercent = (stage.value / maxValue) * 100;
+                                        const prevStage = index > 0 ? stages[index - 1] : null;
+                                        const conversionRate = prevStage ? ((stage.value / prevStage.value) * 100).toFixed(0) : 100;
+                                        
+                                        return (
+                                            <div key={stage.name}>
+                                                <div className="flex justify-between mb-1 text-sm">
+                                                    <span className="font-medium">{stage.name}</span>
+                                                    <div className="flex gap-3">
+                                                        {index > 0 && <span className="text-slate-500">{conversionRate}%</span>}
+                                                        <span className="font-bold text-slate-800">{stage.value}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full bg-slate-200 rounded-full h-8">
+                                                    <div 
+                                                        className={`${stage.color} h-full rounded-full flex items-center justify-end pr-3`}
+                                                        style={{width: `${Math.max(widthPercent, 8)}%`}}
+                                                    >
+                                                        {widthPercent > 20 && (
+                                                            <span className="text-white font-semibold text-sm">{stage.value}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                            <h2 className="text-xl font-bold text-slate-800 mb-4">Quarterly Breakdown</h2>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b-2 border-slate-200">
+                                            <th className="text-left py-3 px-2 text-sm font-semibold text-slate-600">Metric</th>
+                                            <th className="text-center py-3 px-2 text-sm font-semibold text-blue-600">Q1</th>
+                                            <th className="text-center py-3 px-2 text-sm font-semibold text-indigo-600">Q2</th>
+                                            <th className="text-center py-3 px-2 text-sm font-semibold text-purple-600">Q3</th>
+                                            <th className="text-center py-3 px-2 text-sm font-semibold text-pink-600">Q4</th>
+                                            <th className="text-center py-3 px-2 text-sm font-semibold text-slate-800">Annual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-slate-100">
+                                            <td className="py-3 px-2 font-medium text-slate-700">DMs</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyDMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyDMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyDMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyDMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-blue-600">{dmNeeded}</td>
+                                        </tr>
+                                        <tr className="border-b border-slate-100">
+                                            <td className="py-3 px-2 font-medium text-slate-700">NBMs</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyNBMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyNBMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyNBMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold">{quarterlyNBMs}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-indigo-600">{nbmNeeded}</td>
+                                        </tr>
+                                        <tr className="bg-green-50">
+                                            <td className="py-3 px-2 font-bold text-slate-800">Deals</td>
+                                            <td className="text-center py-3 px-2 font-bold text-green-600">{quarterlyDeals}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-green-600">{quarterlyDeals}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-green-600">{quarterlyDeals}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-green-600">{quarterlyDeals}</td>
+                                            <td className="text-center py-3 px-2 font-bold text-green-700 text-lg">{dealsNeeded}</td>
+                                        </tr>
+                                        <tr className="bg-slate-50 font-bold">
+                                            <td className="py-3 px-2 text-slate-800">NARR</td>
+                                            <td className="text-center py-3 px-2">${(actualAnnualTarget/4).toFixed(2)}M</td>
+                                            <td className="text-center py-3 px-2">${(actualAnnualTarget/4).toFixed(2)}M</td>
+                                            <td className="text-center py-3 px-2">${(actualAnnualTarget/4).toFixed(2)}M</td>
+                                            <td className="text-center py-3 px-2">${(actualAnnualTarget/4).toFixed(2)}M</td>
+                                            <td className="text-center py-3 px-2 text-green-700 text-lg">${actualAnnualTarget.toFixed(1)}M</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-xl p-6 text-white">
+                            <h3 className="text-lg font-bold mb-3">💡 Key Insights to Remember</h3>
+                            <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                <div className="bg-white/10 rounded-lg p-3">
+                                    <div className="font-semibold mb-1">🎯 Focus on Activity</div>
+                                    <div className="text-white/80">Your daily DM number is the leading indicator. Hit it consistently and results follow.</div>
+                                </div>
+                                <div className="bg-white/10 rounded-lg p-3">
+                                    <div className="font-semibold mb-1">📈 Improve Conversions</div>
+                                    <div className="text-white/80">A 10% better conversion rate can cut your required activity in half. Quality $gt quantity.</div>
+                                </div>
+                                <div className="bg-white/10 rounded-lg p-3">
+                                    <div className="font-semibold mb-1">📊 Track & Adjust</div>
+                                    <div className="text-white/80">Update this monthly with your actual conversion rates to get more accurate targets.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<IndividualRepCalculator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
